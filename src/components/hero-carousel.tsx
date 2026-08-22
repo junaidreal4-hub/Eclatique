@@ -7,7 +7,6 @@ const SLIDES = [
   "/hero/hero-look-1.jpeg",
   "/hero/hero-look-2.jpeg",
   "/hero/hero-look-3.jpeg",
-  "/hero/hero-look-4.jpeg",
 ];
 
 export function HeroCarousel() {
