@@ -2,11 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 
+// Hosted on Cloudinary with f_auto,q_auto,w_800 so browsers get a small,
+// format-optimized stream instead of the multi-hundred-MB originals.
+const CLD = "https://res.cloudinary.com/dtkqhuitl/video/upload/f_auto,q_auto,w_800,c_limit";
 const REELS = [
-  "/reels/reel-1.mp4",
-  "/reels/reel-2.mp4",
-  "/reels/reel-3.mp4",
-  "/reels/reel-4.mp4",
+  `${CLD}/v1787426022/reel-1_euncff.mp4`,
+  `${CLD}/v1787426021/reel-2_kuc9au.mp4`,
+  `${CLD}/v1787426025/reel-3_i8w2cy.mp4`,
+  `${CLD}/v1787426028/reel-4_xygde6.mp4`,
 ];
 
 export function ReelsSection() {

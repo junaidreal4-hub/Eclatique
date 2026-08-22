@@ -1,10 +1,9 @@
-Drop the 4 creator reel videos here, named exactly:
+The "Eclatique in Motion" reels are hosted on Cloudinary (not committed to the
+repo — video files are too large for git).
 
-  reel-1.mp4
-  reel-2.mp4
-  reel-3.mp4
-  reel-4.mp4
+The URLs are configured in src/components/reels-section.tsx, delivered with the
+f_auto,q_auto,w_800 transformation so browsers receive a small, optimized stream
+rather than the original multi-hundred-MB uploads.
 
-They should be vertical (9:16) MP4 (H.264) files. Keep each ideally under ~8 MB
-for fast loading. Once these files are present, the "Eclatique in Motion" section
-on the homepage will autoplay them (muted, looping) with a tap-to-unmute control.
+To swap a reel: re-upload to Cloudinary and update the matching URL in
+reels-section.tsx.
