@@ -19,85 +19,92 @@ export function Header() {
   }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-paper/95 backdrop-blur">
-      <div className="mx-auto grid h-16 max-w-[1400px] grid-cols-[1fr_auto_1fr] items-center px-4 sm:px-6">
-        {/* Left: desktop nav / mobile menu button */}
-        <div className="flex items-center">
-          <button
-            type="button"
-            onClick={() => setMenuOpen(true)}
-            className="-ml-2 p-2 md:hidden"
-            aria-label="Open menu"
-          >
-            <MenuIcon />
-          </button>
-          <nav className="hidden items-center gap-7 md:flex">
-            {NAV_ITEMS.map((item) => (
-              <Link
-                key={item.handle}
-                href={`/collections/${item.handle}`}
-                className="label text-[11px] text-ink/70 transition-colors hover:text-ink"
-              >
-                {item.title}
-              </Link>
-            ))}
-          </nav>
-        </div>
+    <>
+      <header className="sticky top-0 z-50 border-b border-line bg-paper/95 backdrop-blur">
+        <div className="mx-auto grid h-16 max-w-[1400px] grid-cols-[1fr_auto_1fr] items-center px-4 sm:px-6">
+          {/* Left: desktop nav / mobile menu button */}
+          <div className="flex items-center">
+            <button
+              type="button"
+              onClick={() => setMenuOpen(true)}
+              className="-ml-2 p-2 md:hidden"
+              aria-label="Open menu"
+            >
+              <MenuIcon />
+            </button>
+            <nav className="hidden items-center gap-7 md:flex">
+              {NAV_ITEMS.map((item) => (
+                <Link
+                  key={item.handle}
+                  href={`/collections/${item.handle}`}
+                  className="label text-[11px] text-ink/70 transition-colors hover:text-ink"
+                >
+                  {item.title}
+                </Link>
+              ))}
+            </nav>
+          </div>
 
-        {/* Center: wordmark */}
-        <Link href="/" className="justify-self-center" aria-label="Eclatique home">
-          <Image
-            src="/brand/eclatique-logo.webp"
-            alt="Eclatique"
-            width={749}
-            height={160}
-            priority
-            className="h-6 w-auto sm:h-8"
-          />
-        </Link>
-
-        {/* Right: account + cart */}
-        <div className="flex items-center justify-end gap-1 sm:gap-2">
-          <Link
-            href="/account"
-            className="hidden p-2 text-ink/70 transition-colors hover:text-ink sm:block"
-            aria-label="Account"
-          >
-            <UserIcon />
+          {/* Center: wordmark */}
+          <Link href="/" className="justify-self-center" aria-label="Eclatique home">
+            <Image
+              src="/brand/eclatique-logo.webp"
+              alt="Eclatique"
+              width={749}
+              height={160}
+              priority
+              className="h-6 w-auto sm:h-8"
+            />
           </Link>
-          <button
-            type="button"
-            onClick={openCart}
-            className="relative p-2 text-ink/80 transition-colors hover:text-ink"
-            aria-label="Open cart"
-          >
-            <BagIcon />
-            {ready && count > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-paper">
-                {count}
-              </span>
-            )}
-          </button>
-        </div>
-      </div>
 
-      {/* Mobile slide-in menu */}
+          {/* Right: account + cart */}
+          <div className="flex items-center justify-end gap-1 sm:gap-2">
+            <Link
+              href="/account"
+              className="hidden p-2 text-ink/70 transition-colors hover:text-ink sm:block"
+              aria-label="Account"
+            >
+              <UserIcon />
+            </Link>
+            <button
+              type="button"
+              onClick={openCart}
+              className="relative p-2 text-ink/80 transition-colors hover:text-ink"
+              aria-label="Open cart"
+            >
+              <BagIcon />
+              {ready && count > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-paper">
+                  {count}
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/*
+        Mobile slide-in menu — MUST live outside <header>. The header uses
+        backdrop-blur, which makes it the containing block for fixed descendants;
+        nesting this here would trap the overlay inside the 64px header box and
+        leave the page visible behind it.
+      */}
       <div
-        className={`fixed inset-0 z-50 md:hidden ${menuOpen ? "" : "pointer-events-none"}`}
+        className={`fixed inset-0 z-[70] md:hidden ${menuOpen ? "" : "pointer-events-none"}`}
         aria-hidden={!menuOpen}
       >
         <div
-          className={`absolute inset-0 bg-ink/40 transition-opacity duration-300 ${
+          className={`absolute inset-0 bg-ink/50 transition-opacity duration-300 ${
             menuOpen ? "opacity-100" : "opacity-0"
           }`}
           onClick={() => setMenuOpen(false)}
         />
         <div
-          className={`absolute left-0 top-0 h-full w-[82%] max-w-xs bg-paper shadow-xl transition-transform duration-300 ${
+          className={`absolute left-0 top-0 flex h-full w-[82%] max-w-xs flex-col bg-paper shadow-xl transition-transform duration-300 ${
             menuOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          <div className="flex h-16 items-center justify-between border-b border-line px-5">
+          <div className="flex h-16 flex-shrink-0 items-center justify-between border-b border-line px-5">
             <span className="label text-xs">Menu</span>
             <button
               type="button"
@@ -108,7 +115,7 @@ export function Header() {
               <CloseIcon />
             </button>
           </div>
-          <nav className="flex flex-col px-5 py-2">
+          <nav className="flex flex-col overflow-y-auto px-5 py-2">
             {NAV_ITEMS.map((item) => (
               <Link
                 key={item.handle}
@@ -129,7 +136,7 @@ export function Header() {
           </nav>
         </div>
       </div>
-    </header>
+    </>
   );
 }
 
