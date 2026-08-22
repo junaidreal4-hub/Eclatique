@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 
-// Hosted on Cloudinary with f_auto,q_auto,w_800 so browsers get a small,
-// format-optimized stream instead of the multi-hundred-MB originals.
-const CLD = "https://res.cloudinary.com/dtkqhuitl/video/upload/f_auto,q_auto,w_800,c_limit";
+// Hosted on Cloudinary. Served as-uploaded (already HandBrake-optimized, ~7-14MB,
+// vertical 9:16). No resize/quality transform — those were cropping the vertical
+// clips to 16:9 landscape and re-compressing them.
+const CLD = "https://res.cloudinary.com/dtkqhuitl/video/upload";
 const REELS = [
   `${CLD}/v1787426022/reel-1_euncff.mp4`,
   `${CLD}/v1787426021/reel-2_kuc9au.mp4`,
