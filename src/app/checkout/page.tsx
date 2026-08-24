@@ -2,28 +2,139 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { formatPrice } from "@/lib/format";
 import { useCart } from "@/components/cart-context";
 
+type RazorpayInstance = { open: () => void; on: (event: string, cb: () => void) => void };
+type RazorpayCtor = new (options: Record<string, unknown>) => RazorpayInstance;
+declare global {
+  interface Window {
+    Razorpay?: RazorpayCtor;
+  }
+}
+
+function loadRazorpay(): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (typeof window === "undefined") return resolve(false);
+    if (window.Razorpay) return resolve(true);
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
+
 export default function CheckoutPage() {
-  const { lines, subtotal, ready } = useCart();
-  const [notice, setNotice] = useState<string | null>(null);
+  const { lines, subtotal, clear, ready } = useCart();
+  const router = useRouter();
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const shipping = 0; // free delivery across India
   const total = subtotal + shipping;
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setError(null);
     const form = e.currentTarget;
     if (!form.checkValidity()) {
       form.reportValidity();
       return;
     }
-    // Razorpay order creation + verification is the next build phase.
-    setNotice(
-      "Details captured. Razorpay payment is wired in the next phase. No charge has been made.",
-    );
+    if (lines.length === 0) {
+      setError("Your cart is empty.");
+      return;
+    }
+
+    setSubmitting(true);
+    const fd = new FormData(form);
+    const details = {
+      email: fd.get("email"),
+      firstName: fd.get("first_name"),
+      lastName: fd.get("last_name"),
+      phone: fd.get("phone"),
+      address: fd.get("address"),
+      city: fd.get("city"),
+      postalCode: fd.get("postal_code"),
+    };
+    const items = lines.map((l) => ({
+      productId: l.productId,
+      size: l.size,
+      quantity: l.quantity,
+    }));
+
+    try {
+      const res = await fetch("/api/checkout/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items, ...details }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Could not start checkout.");
+        setSubmitting(false);
+        return;
+      }
+
+      const loaded = await loadRazorpay();
+      if (!loaded || !window.Razorpay) {
+        setError("Could not load the payment gateway. Check your connection and try again.");
+        setSubmitting(false);
+        return;
+      }
+
+      const rzp = new window.Razorpay({
+        key: data.keyId,
+        order_id: data.razorpayOrderId,
+        amount: data.amount,
+        currency: "INR",
+        name: "Eclatique",
+        description: "Order Payment",
+        prefill: {
+          name: `${details.firstName ?? ""} ${details.lastName ?? ""}`.trim(),
+          email: details.email,
+          contact: details.phone,
+        },
+        theme: { color: "#3e2723" },
+        handler: async (response: {
+          razorpay_order_id: string;
+          razorpay_payment_id: string;
+          razorpay_signature: string;
+        }) => {
+          try {
+            const vr = await fetch("/api/checkout/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(response),
+            });
+            const vd = await vr.json();
+            if (vd.status === "success") {
+              clear();
+              router.push(`/order-confirmed?order=${encodeURIComponent(vd.orderId)}`);
+            } else {
+              setError("Payment could not be verified. If you were charged, please contact us.");
+              setSubmitting(false);
+            }
+          } catch {
+            setError("Verification failed. If you were charged, please contact us.");
+            setSubmitting(false);
+          }
+        },
+        modal: { ondismiss: () => setSubmitting(false) },
+      } as Record<string, unknown>);
+
+      rzp.on("payment.failed", () => {
+        setError("Payment failed. Please try again.");
+        setSubmitting(false);
+      });
+      rzp.open();
+    } catch {
+      setError("Something went wrong. Please try again.");
+      setSubmitting(false);
+    }
   }
 
   if (ready && lines.length === 0) {
@@ -51,7 +162,7 @@ export default function CheckoutPage() {
             <h2 className="label mb-5 border-b border-line pb-3 text-xs">Shipping Address</h2>
             <div className="grid grid-cols-2 gap-5">
               <Field label="First name" name="first_name" />
-              <Field label="Last name" name="last_name" />
+              <Field label="Last name" name="last_name" required={false} />
               <div className="col-span-2">
                 <Field label="Phone" name="phone" type="tel" placeholder="9876543210" />
               </div>
@@ -103,11 +214,15 @@ export default function CheckoutPage() {
               <span>{formatPrice(total)}</span>
             </div>
           </div>
-          {notice && (
-            <p className="mt-4 border border-line bg-subtle p-3 text-xs text-muted">{notice}</p>
+          {error && (
+            <p className="mt-4 border border-sale/30 bg-sale/5 p-3 text-xs font-medium text-sale">{error}</p>
           )}
-          <button type="submit" className="label mt-6 w-full bg-accent py-4 text-[11px] text-paper hover:opacity-90">
-            Complete Payment
+          <button
+            type="submit"
+            disabled={submitting}
+            className="label mt-6 w-full bg-accent py-4 text-[11px] text-paper hover:opacity-90 disabled:opacity-50"
+          >
+            {submitting ? "Processing…" : `Pay ${formatPrice(total)}`}
           </button>
           <p className="label mt-4 text-center text-[10px] text-faint">
             Secured with 256-bit SSL encryption
@@ -123,11 +238,13 @@ function Field({
   name,
   type = "text",
   placeholder,
+  required = true,
 }: {
   label: string;
   name: string;
   type?: string;
   placeholder?: string;
+  required?: boolean;
 }) {
   return (
     <label className="block">
@@ -136,7 +253,7 @@ function Field({
         name={name}
         type={type}
         placeholder={placeholder}
-        required
+        required={required}
         className="w-full border-b border-line bg-transparent py-2 text-sm outline-none transition-colors focus:border-ink placeholder:text-faint"
       />
     </label>

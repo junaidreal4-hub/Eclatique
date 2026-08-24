@@ -1,18 +1,22 @@
 import Link from "next/link";
 import { countProducts } from "@/lib/products";
+import { countOrders } from "@/lib/orders";
 
 export default async function AdminDashboard() {
-  const total = await countProducts();
+  const [totalProducts, paidOrders] = await Promise.all([
+    countProducts(),
+    countOrders(),
+  ]);
 
   return (
     <div>
       <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-      <p className="mt-2 text-sm text-muted">Manage your catalogue.</p>
+      <p className="mt-2 text-sm text-muted">Manage your catalogue and orders.</p>
 
       <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div className="border border-line bg-paper p-8">
           <p className="label text-[11px] text-faint">Total Products</p>
-          <p className="mt-2 text-5xl font-bold">{total}</p>
+          <p className="mt-2 text-5xl font-bold">{totalProducts}</p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
               href="/admin/products"
@@ -30,10 +34,16 @@ export default async function AdminDashboard() {
         </div>
 
         <div className="border border-line bg-paper p-8">
-          <p className="label text-[11px] text-faint">Orders</p>
-          <p className="mt-2 text-sm text-muted">
-            Order management arrives with the payment integration (next phase).
-          </p>
+          <p className="label text-[11px] text-faint">Paid Orders</p>
+          <p className="mt-2 text-5xl font-bold">{paidOrders}</p>
+          <div className="mt-6">
+            <Link
+              href="/admin/orders"
+              className="label bg-accent px-6 py-3 text-[11px] text-paper hover:opacity-90"
+            >
+              View Orders
+            </Link>
+          </div>
         </div>
       </div>
     </div>

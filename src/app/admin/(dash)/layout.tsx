@@ -28,6 +28,9 @@ export default async function AdminDashLayout({
               <Link href="/admin/products" className="label text-[11px] text-ink/70 hover:text-ink">
                 Products
               </Link>
+              <Link href="/admin/orders" className="label text-[11px] text-ink/70 hover:text-ink">
+                Orders
+              </Link>
             </nav>
           </div>
           <div className="flex items-center gap-4">
