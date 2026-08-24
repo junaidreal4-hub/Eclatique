@@ -3,20 +3,25 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { NAV_ITEMS } from "@/lib/nav";
+import { NAV_GROUPS, NAV_LEADING, NAV_TRAILING } from "@/lib/nav";
 import { useCart } from "./cart-context";
 
 export function Header() {
   const { count, openCart, ready } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [expanded, setExpanded] = useState<string | null>(null);
 
-  // Lock body scroll while the mobile menu is open.
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
   }, [menuOpen]);
+
+  function closeMenu() {
+    setMenuOpen(false);
+    setExpanded(null);
+  }
 
   return (
     <>
@@ -32,14 +37,49 @@ export function Header() {
             >
               <MenuIcon />
             </button>
-            <nav className="hidden items-center gap-7 md:flex">
-              {NAV_ITEMS.map((item) => (
+            <nav className="hidden items-center gap-6 md:flex">
+              {NAV_LEADING.map((item) => (
                 <Link
-                  key={item.handle}
-                  href={`/collections/${item.handle}`}
+                  key={item.href}
+                  href={item.href}
                   className="label text-[11px] text-ink/70 transition-colors hover:text-ink"
                 >
-                  {item.title}
+                  {item.label}
+                </Link>
+              ))}
+
+              {NAV_GROUPS.map((group) => (
+                <div key={group.label} className="group relative">
+                  <Link
+                    href={group.href}
+                    className="label flex items-center gap-1 text-[11px] text-ink/70 transition-colors hover:text-ink"
+                  >
+                    {group.label}
+                    <ChevronIcon />
+                  </Link>
+                  <div className="invisible absolute left-0 top-full z-50 pt-3 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+                    <div className="min-w-[190px] border border-line bg-paper py-2 shadow-xl">
+                      {group.children.map((child) => (
+                        <Link
+                          key={child.href}
+                          href={child.href}
+                          className="block px-5 py-2.5 text-sm text-ink/75 transition-colors hover:bg-subtle hover:text-ink"
+                        >
+                          {child.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {NAV_TRAILING.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="label text-[11px] text-ink/70 transition-colors hover:text-ink"
+                >
+                  {item.label}
                 </Link>
               ))}
             </nav>
@@ -83,12 +123,8 @@ export function Header() {
         </div>
       </header>
 
-      {/*
-        Mobile slide-in menu — MUST live outside <header>. The header uses
-        backdrop-blur, which makes it the containing block for fixed descendants;
-        nesting this here would trap the overlay inside the 64px header box and
-        leave the page visible behind it.
-      */}
+      {/* Mobile slide-in menu — outside <header> so its backdrop-blur doesn't
+          trap this fixed overlay inside the header box. */}
       <div
         className={`fixed inset-0 z-[70] md:hidden ${menuOpen ? "" : "pointer-events-none"}`}
         aria-hidden={!menuOpen}
@@ -97,38 +133,73 @@ export function Header() {
           className={`absolute inset-0 bg-ink/50 transition-opacity duration-300 ${
             menuOpen ? "opacity-100" : "opacity-0"
           }`}
-          onClick={() => setMenuOpen(false)}
+          onClick={closeMenu}
         />
         <div
-          className={`absolute left-0 top-0 flex h-full w-[82%] max-w-xs flex-col bg-paper shadow-xl transition-transform duration-300 ${
+          className={`absolute left-0 top-0 flex h-full w-[85%] max-w-xs flex-col bg-paper shadow-xl transition-transform duration-300 ${
             menuOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
           <div className="flex h-16 flex-shrink-0 items-center justify-between border-b border-line px-5">
             <span className="label text-xs">Menu</span>
-            <button
-              type="button"
-              onClick={() => setMenuOpen(false)}
-              className="-mr-2 p-2"
-              aria-label="Close menu"
-            >
+            <button type="button" onClick={closeMenu} className="-mr-2 p-2" aria-label="Close menu">
               <CloseIcon />
             </button>
           </div>
           <nav className="flex flex-col overflow-y-auto px-5 py-2">
-            {NAV_ITEMS.map((item) => (
+            {NAV_LEADING.map((item) => (
               <Link
-                key={item.handle}
-                href={`/collections/${item.handle}`}
-                onClick={() => setMenuOpen(false)}
+                key={item.href}
+                href={item.href}
+                onClick={closeMenu}
                 className="border-b border-line py-4 text-lg font-medium text-ink"
               >
-                {item.title}
+                {item.label}
               </Link>
             ))}
+
+            {NAV_GROUPS.map((group) => (
+              <div key={group.label} className="border-b border-line">
+                <button
+                  type="button"
+                  onClick={() => setExpanded(expanded === group.label ? null : group.label)}
+                  className="flex w-full items-center justify-between py-4 text-lg font-medium text-ink"
+                  aria-expanded={expanded === group.label}
+                >
+                  {group.label}
+                  <ChevronIcon className={expanded === group.label ? "rotate-180 transition-transform" : "transition-transform"} />
+                </button>
+                {expanded === group.label && (
+                  <div className="flex flex-col pb-3 pl-3">
+                    {group.children.map((child) => (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        onClick={closeMenu}
+                        className="py-2 text-base text-ink/70"
+                      >
+                        {child.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {NAV_TRAILING.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={closeMenu}
+                className="border-b border-line py-4 text-lg font-medium text-ink"
+              >
+                {item.label}
+              </Link>
+            ))}
+
             <Link
               href="/account"
-              onClick={() => setMenuOpen(false)}
+              onClick={closeMenu}
               className="py-4 text-lg font-medium text-ink/70"
             >
               Account
@@ -151,6 +222,13 @@ function CloseIcon() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
       <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+    </svg>
+  );
+}
+function ChevronIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={className}>
+      <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

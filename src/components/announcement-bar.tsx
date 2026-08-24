@@ -1,7 +1,7 @@
 const MESSAGES = [
   "Free Delivery Across India",
   "Easy 3-Day Returns",
-  "Cash on Delivery Available",
+  "Secure Prepaid Checkout",
   "Choose the Unordinary",
 ];
 

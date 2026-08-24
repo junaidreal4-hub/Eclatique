@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { discountPercent, formatPrice } from "@/lib/format";
-import { isSoldOut } from "@/lib/products";
+import { isSoldOut } from "@/lib/product-utils";
 import type { Product } from "@/lib/types";
 
 export function ProductCard({

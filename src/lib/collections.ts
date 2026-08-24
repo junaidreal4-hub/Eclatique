@@ -2,10 +2,11 @@ import {
   getAllProducts,
   getNewArrivals,
   getProductsByCategory,
-  getProductsByType,
+  getProductsBySubCategory,
   getSaleProducts,
 } from "./products";
-import type { Product } from "./types";
+import { CATEGORIES, SUBCATEGORIES } from "./taxonomy";
+import type { Category, Product, SubCategory } from "./types";
 
 export interface CollectionDef {
   handle: string;
@@ -14,62 +15,59 @@ export interface CollectionDef {
   resolve: () => Promise<Product[]>;
 }
 
-const collections: CollectionDef[] = [
-  {
-    handle: "all",
-    title: "View All",
-    subtitle: "Every piece, one place. The full Eclatique range.",
-    resolve: () => getAllProducts(),
-  },
-  {
-    handle: "new",
-    title: "New Arrivals",
-    subtitle: "The newest drop of the season.",
-    resolve: () => getNewArrivals(50),
-  },
-  {
-    handle: "men",
-    title: "Men",
-    subtitle: "Elevated essentials, cut clean.",
-    resolve: () => getProductsByCategory("men"),
-  },
-  {
-    handle: "women",
-    title: "Women",
-    subtitle: "Modern silhouettes for the bold.",
-    resolve: () => getProductsByCategory("women"),
-  },
-  {
-    handle: "shirts",
-    title: "Shirts",
-    subtitle: "Full-zip silhouettes, cut clean.",
-    resolve: () => getProductsByType("shirts"),
-  },
-  {
-    handle: "tops",
-    title: "Tops",
-    subtitle: "Lace-up backs and easy elegance.",
-    resolve: () => getProductsByType("tops"),
-  },
-  {
-    handle: "sale",
-    title: "Sale",
-    subtitle: "Marked-down, not marked-off.",
-    resolve: () => getSaleProducts(),
-  },
-];
-
-/** Primary top-nav, mirroring the reference site's flat type-based menu. */
-export const NAV_HANDLES = ["all", "men", "women", "new", "sale"] as const;
-
 export function getCollection(handle: string): CollectionDef | undefined {
-  return collections.find((c) => c.handle === handle);
-}
+  if (handle === "all")
+    return {
+      handle,
+      title: "View All",
+      subtitle: "Every piece, one place. The full Eclatique range.",
+      resolve: () => getAllProducts(),
+    };
+  if (handle === "new")
+    return {
+      handle,
+      title: "New Arrivals",
+      subtitle: "The newest drop of the season.",
+      resolve: () => getNewArrivals(100),
+    };
+  if (handle === "sale")
+    return {
+      handle,
+      title: "Sale",
+      subtitle: "Marked-down, not marked-off.",
+      resolve: () => getSaleProducts(),
+    };
 
-export function getNavCollections(): CollectionDef[] {
-  return NAV_HANDLES.map((h) => getCollection(h)!).filter(Boolean);
+  // Whole category, e.g. "men" / "women"
+  const cat = CATEGORIES.find((c) => c.slug === handle);
+  if (cat)
+    return {
+      handle,
+      title: cat.label,
+      subtitle: `The ${cat.label}'s collection.`,
+      resolve: () => getProductsByCategory(cat.slug),
+    };
+
+  // Category + sub-category, e.g. "men-shirt" / "women-jackets"
+  const [c, s] = handle.split("-");
+  const catMatch = CATEGORIES.find((x) => x.slug === c);
+  const subMatch = SUBCATEGORIES.find((x) => x.slug === s);
+  if (catMatch && subMatch)
+    return {
+      handle,
+      title: `${catMatch.label}'s ${subMatch.label}`,
+      subtitle: `${subMatch.label} from the ${catMatch.label.toLowerCase()}'s collection.`,
+      resolve: () =>
+        getProductsBySubCategory(catMatch.slug as Category, subMatch.slug as SubCategory),
+    };
+
+  return undefined;
 }
 
 export function getAllCollectionHandles(): string[] {
-  return collections.map((c) => c.handle);
+  const base = ["all", "new", "sale", ...CATEGORIES.map((c) => c.slug)];
+  const combos = CATEGORIES.flatMap((c) =>
+    SUBCATEGORIES.map((s) => `${c.slug}-${s.slug}`),
+  );
+  return [...base, ...combos];
 }

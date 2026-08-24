@@ -65,7 +65,7 @@ export function Footer() {
 
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-line pt-8 text-xs text-faint sm:flex-row">
           <p>&copy; {new Date().getFullYear()} Eclatique Clothing. All rights reserved.</p>
-          <p className="label text-[10px]">Visa · Mastercard · UPI · RuPay · COD</p>
+          <p className="label text-[10px]">Visa · Mastercard · UPI · RuPay</p>
         </div>
       </div>
     </footer>

@@ -6,6 +6,7 @@ import { AnnouncementBar } from "@/components/announcement-bar";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { CartDrawer } from "@/components/cart-drawer";
+import { StoreOnly } from "@/components/store-only";
 
 const geist = Geist({
   variable: "--font-geist-sans",
@@ -32,11 +33,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en" className={`${geist.variable} h-full`}>
       <body className="flex min-h-full flex-col antialiased">
         <CartProvider>
-          <AnnouncementBar />
-          <Header />
+          <StoreOnly>
+            <AnnouncementBar />
+            <Header />
+          </StoreOnly>
           <main className="flex-1">{children}</main>
-          <Footer />
-          <CartDrawer />
+          <StoreOnly>
+            <Footer />
+            <CartDrawer />
+          </StoreOnly>
         </CartProvider>
       </body>
     </html>

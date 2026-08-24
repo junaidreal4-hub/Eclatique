@@ -45,3 +45,7 @@ next-env.d.ts
 *.mov
 *.webm
 *.m4v
+
+# prisma / sqlite database (persists on the server, outside version control)
+/prisma/*.db
+/prisma/*.db-journal

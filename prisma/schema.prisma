@@ -1,0 +1,31 @@
+// Eclatique product database.
+// SQLite for local/VPS (the .db file lives outside git, so admin edits survive
+// deploys). Switch `provider` to "postgresql" + a hosted URL for serverless.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id             Int      @id @default(autoincrement())
+  slug           String   @unique
+  name           String
+  colorway       String   @default("")
+  price          Int
+  compareAtPrice Int?
+  category       String // "men" | "women"
+  subCategory    String // "shirt" | "tshirt" | "bottomwear" | "jackets" | "accessories"
+  images         String   @default("[]") // JSON array of image URLs
+  sizes          String   @default("[]") // JSON array of size codes
+  stock          String   @default("{}") // JSON object { size: qty }
+  description    String   @default("")
+  details        String   @default("")
+  isNew          Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}

@@ -73,7 +73,7 @@ export default function CheckoutPage() {
               </div>
               <div>
                 <p className="text-sm font-medium">Razorpay Secure Payment</p>
-                <p className="label text-[10px] text-faint">Cards · UPI · Netbanking · COD</p>
+                <p className="label text-[10px] text-faint">Cards · UPI · Netbanking</p>
               </div>
             </div>
           </section>

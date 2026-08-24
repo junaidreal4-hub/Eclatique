@@ -2,13 +2,11 @@ export type Size = "XS" | "S" | "M" | "L" | "XL" | "XXL" | "XXXL";
 
 export type Category = "men" | "women";
 
-export type ProductType =
-  | "shirts"
-  | "tops"
-  | "tshirts"
+export type SubCategory =
+  | "shirt"
+  | "tshirt"
   | "bottomwear"
   | "jackets"
-  | "knits"
   | "accessories";
 
 export interface Product {
@@ -19,7 +17,7 @@ export interface Product {
   price: number;
   compareAtPrice?: number;
   category: Category;
-  type: ProductType;
+  subCategory: SubCategory;
   images: string[];
   sizes: Size[];
   /** stock per size; a size missing or <= 0 renders as sold out */
