@@ -5,6 +5,9 @@ import { ProductGrid } from "@/components/product-grid";
 import { ReelsSection } from "@/components/reels-section";
 import { getNewArrivals } from "@/lib/products";
 
+// Rendered on demand (reads the DB at request time, not at build).
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const newArrivals = await getNewArrivals(8);
 

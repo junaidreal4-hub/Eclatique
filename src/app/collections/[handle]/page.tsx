@@ -6,6 +6,8 @@ import {
   getCollection,
 } from "@/lib/collections";
 
+export const dynamic = "force-dynamic";
+
 export function generateStaticParams() {
   return getAllCollectionHandles().map((handle) => ({ handle }));
 }

@@ -11,9 +11,16 @@ import {
   getRelatedProducts,
 } from "@/lib/products";
 
+export const dynamic = "force-dynamic";
+
 export async function generateStaticParams() {
-  const products = await getAllProducts();
-  return products.map((p) => ({ slug: p.slug }));
+  try {
+    const products = await getAllProducts();
+    return products.map((p) => ({ slug: p.slug }));
+  } catch {
+    // No DB reachable at build time — pages render on demand instead.
+    return [];
+  }
 }
 
 export async function generateMetadata({

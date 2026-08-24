@@ -1,13 +1,13 @@
 // Eclatique product database.
-// SQLite for local/VPS (the .db file lives outside git, so admin edits survive
-// deploys). Switch `provider` to "postgresql" + a hosted URL for serverless.
+// PostgreSQL (Neon / Supabase). Required for serverless hosts like Vercel;
+// set DATABASE_URL in the host's env and run `npm run db:setup` once to seed.
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
