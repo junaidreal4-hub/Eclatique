@@ -2,6 +2,7 @@ import Link from "next/link";
 import { saveProductAction } from "@/app/admin/actions";
 import { ALL_SIZES, CATEGORIES, SUBCATEGORIES } from "@/lib/taxonomy";
 import type { Product } from "@/lib/types";
+import { ProductImageUploader } from "./product-image-uploader";
 
 const labelCls = "label mb-2 block text-[10px] text-faint";
 const inputCls =
@@ -96,17 +97,8 @@ export function ProductForm({ product }: { product?: Product }) {
       </section>
 
       <section>
-        <label className={labelCls}>Image URLs</label>
-        <p className="mb-2 text-xs text-faint">
-          One per line. Paste Cloudinary (or any) image URLs. The first is the main image.
-        </p>
-        <textarea
-          name="images"
-          rows={4}
-          defaultValue={product?.images.join("\n")}
-          className={`${inputCls} font-mono text-xs`}
-          placeholder="https://res.cloudinary.com/.../image-1.jpg"
-        />
+        <label className={labelCls}>Product Photos</label>
+        <ProductImageUploader defaultImages={product?.images ?? []} />
       </section>
 
       <section className="space-y-5">

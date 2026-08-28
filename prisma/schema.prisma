@@ -30,6 +30,13 @@ model Product {
   updatedAt      DateTime @updatedAt
 }
 
+model Reel {
+  id        Int      @id @default(autoincrement())
+  videoUrl  String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
 model Order {
   id                Int      @id @default(autoincrement())
   razorpayOrderId   String   @unique

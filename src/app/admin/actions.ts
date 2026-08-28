@@ -14,6 +14,7 @@ import {
   updateProduct,
   type ProductInput,
 } from "@/lib/products";
+import { addReel, deleteReel, updateReelOrder } from "@/lib/reels";
 import { ALL_SIZES } from "@/lib/taxonomy";
 import type { Category, Size, SubCategory } from "@/lib/types";
 
@@ -42,9 +43,9 @@ function parseProductInput(formData: FormData): ProductInput {
     }
   }
 
-  const images = String(formData.get("images") ?? "")
-    .split(/[\n,]+/)
-    .map((s) => s.trim())
+  const images = formData
+    .getAll("images")
+    .map((v) => String(v).trim())
     .filter(Boolean);
 
   const price = Math.round(Number(formData.get("price")) || 0);
@@ -99,4 +100,37 @@ export async function deleteProductAction(formData: FormData) {
     revalidatePath("/", "layout");
   }
   redirect("/admin/products");
+}
+
+// ---- Reels -----------------------------------------------------------------
+
+export async function addReelAction(formData: FormData) {
+  if (!(await isAuthenticated())) redirect("/admin/login");
+  const url = String(formData.get("videoUrl") ?? "").trim();
+  if (url) {
+    await addReel(url);
+    revalidatePath("/", "layout");
+  }
+  redirect("/admin/reels");
+}
+
+export async function deleteReelAction(formData: FormData) {
+  if (!(await isAuthenticated())) redirect("/admin/login");
+  const id = Number(formData.get("id"));
+  if (id) {
+    await deleteReel(id);
+    revalidatePath("/", "layout");
+  }
+  redirect("/admin/reels");
+}
+
+export async function updateReelOrderAction(formData: FormData) {
+  if (!(await isAuthenticated())) redirect("/admin/login");
+  const id = Number(formData.get("id"));
+  const order = Number(formData.get("sortOrder"));
+  if (id) {
+    await updateReelOrder(id, Number.isFinite(order) ? order : 0);
+    revalidatePath("/", "layout");
+  }
+  redirect("/admin/reels");
 }
