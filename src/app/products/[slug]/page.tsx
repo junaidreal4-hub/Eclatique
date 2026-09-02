@@ -8,6 +8,7 @@ import { discountPercent, formatPrice } from "@/lib/format";
 import {
   getAllProducts,
   getProductBySlug,
+  getProductVariants,
   getRelatedProducts,
 } from "@/lib/products";
 
@@ -52,6 +53,7 @@ export default async function ProductPage({
   if (!product) notFound();
 
   const related = await getRelatedProducts(product);
+  const variants = await getProductVariants(product);
   const discount = discountPercent(product.price, product.compareAtPrice);
 
   const jsonLd = {
@@ -110,6 +112,51 @@ export default async function ProductPage({
             )}
           </div>
           <p className="mt-1 text-xs text-faint">MRP inclusive of all taxes.</p>
+
+          {variants.length > 1 && (
+            <div className="mt-6">
+              <p className="label mb-3 text-[10px] text-faint">
+                Colour
+                {product.colorway && (
+                  <span className="ml-2 normal-case tracking-normal text-ink">
+                    {product.colorway}
+                  </span>
+                )}
+              </p>
+              <div className="flex flex-wrap gap-3">
+                {variants.map((v) => {
+                  const active = v.id === product.id;
+                  const thumb = v.images[0];
+                  return (
+                    <Link
+                      key={v.id}
+                      href={`/products/${v.slug}`}
+                      title={v.colorway || v.name}
+                      aria-current={active ? "true" : undefined}
+                      className={`relative block h-16 w-16 overflow-hidden border transition ${
+                        active
+                          ? "border-ink ring-1 ring-ink"
+                          : "border-line hover:border-ink"
+                      }`}
+                    >
+                      {thumb ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={thumb}
+                          alt={v.colorway || v.name}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <span className="flex h-full w-full items-center justify-center text-[9px] text-faint">
+                          {v.colorway || "—"}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           <p className="mt-6 whitespace-pre-line text-sm leading-relaxed text-muted">
             {product.description}

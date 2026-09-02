@@ -69,6 +69,20 @@ export function ProductForm({ product }: { product?: Product }) {
             </select>
           </div>
         </div>
+        <div>
+          <label className={labelCls}>Variant Group (optional)</label>
+          <input
+            name="variantGroup"
+            defaultValue={product?.variantGroup}
+            className={inputCls}
+            placeholder="e.g. linen-shirt"
+          />
+          <p className="mt-1 text-xs text-faint">
+            Give the same value to products that are the same design in different colours —
+            they&apos;ll link to each other as colour options on the product page. Leave blank
+            if this design has no other colours.
+          </p>
+        </div>
       </section>
 
       <section>

@@ -15,6 +15,7 @@ type Row = {
   compareAtPrice: number | null;
   category: string;
   subCategory: string;
+  variantGroup: string;
   images: string;
   sizes: string;
   stock: string;
@@ -43,6 +44,7 @@ function toProduct(r: Row): Product {
     compareAtPrice: r.compareAtPrice ?? undefined,
     category: r.category as Category,
     subCategory: r.subCategory as SubCategory,
+    variantGroup: r.variantGroup,
     images: safeParse<string[]>(r.images, []),
     sizes: safeParse<Size[]>(r.sizes, []),
     stock: safeParse<Partial<Record<Size, number>>>(r.stock, {}),
@@ -117,6 +119,17 @@ export async function getRelatedProducts(
   return rows.map(toProduct);
 }
 
+/** All colour variants sharing this product's variant group (includes itself). */
+export async function getProductVariants(product: Product): Promise<Product[]> {
+  if (!product.variantGroup) return [];
+  const rows = await prisma.product.findMany({
+    where: { variantGroup: product.variantGroup, NOT: { variantGroup: "" } },
+    orderBy: { createdAt: "asc" },
+  });
+  const variants = rows.map(toProduct);
+  return variants.length > 1 ? variants : [];
+}
+
 // ---- Writes (admin) --------------------------------------------------------
 
 export interface ProductInput {
@@ -126,6 +139,7 @@ export interface ProductInput {
   compareAtPrice: number | null;
   category: Category;
   subCategory: SubCategory;
+  variantGroup: string;
   images: string[];
   sizes: Size[];
   stock: Partial<Record<Size, number>>;
@@ -163,6 +177,7 @@ function serialize(input: ProductInput) {
     compareAtPrice: input.compareAtPrice,
     category: input.category,
     subCategory: input.subCategory,
+    variantGroup: input.variantGroup,
     images: JSON.stringify(input.images),
     sizes: JSON.stringify(input.sizes),
     stock: JSON.stringify(input.stock),

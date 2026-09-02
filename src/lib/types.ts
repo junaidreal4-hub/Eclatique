@@ -18,6 +18,7 @@ export interface Product {
   compareAtPrice?: number;
   category: Category;
   subCategory: SubCategory;
+  variantGroup: string;
   images: string[];
   sizes: Size[];
   /** stock per size; a size missing or <= 0 renders as sold out */

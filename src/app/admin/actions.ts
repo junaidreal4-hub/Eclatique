@@ -62,6 +62,7 @@ function parseProductInput(formData: FormData): ProductInput {
     compareAtPrice: compareNum && compareNum > 0 ? compareNum : null,
     category: String(formData.get("category") ?? "men") as Category,
     subCategory: String(formData.get("subCategory") ?? "shirt") as SubCategory,
+    variantGroup: String(formData.get("variantGroup") ?? "").trim(),
     images,
     sizes,
     stock,

@@ -20,6 +20,7 @@ model Product {
   compareAtPrice Int?
   category       String // "men" | "women"
   subCategory    String // "shirt" | "tshirt" | "bottomwear" | "jackets" | "accessories"
+  variantGroup   String   @default("") // same value = colour variants of one design
   images         String   @default("[]") // JSON array of image URLs
   sizes          String   @default("[]") // JSON array of size codes
   stock          String   @default("{}") // JSON object { size: qty }
