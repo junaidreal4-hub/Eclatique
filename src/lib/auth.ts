@@ -1,5 +1,5 @@
 import "server-only";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 const COOKIE = "eclatique_admin";
 const MAX_AGE = 60 * 60 * 24 * 7; // 7 days
@@ -18,11 +18,15 @@ export async function isAuthenticated(): Promise<boolean> {
 
 export async function startSession(): Promise<void> {
   const secret = process.env.ADMIN_SESSION_SECRET ?? "";
+  // Mark the cookie Secure only when the request is actually HTTPS (Nginx sets
+  // x-forwarded-proto). Over plain HTTP (e.g. previewing via the server IP), a
+  // Secure cookie would be dropped by the browser, breaking the admin session.
+  const proto = (await headers()).get("x-forwarded-proto")?.split(",")[0].trim();
   const jar = await cookies();
   jar.set(COOKIE, secret, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: proto === "https",
     path: "/",
     maxAge: MAX_AGE,
   });
