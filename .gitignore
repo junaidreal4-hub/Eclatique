@@ -49,3 +49,7 @@ next-env.d.ts
 # prisma / sqlite database (persists on the server, outside version control)
 /prisma/*.db
 /prisma/*.db-journal
+
+# admin-uploaded product images (stored on the server, not in git)
+/public/uploads/*
+!/public/uploads/.gitkeep
