@@ -40,13 +40,38 @@ function renderEmail(order: OrderRow): string {
     </div></body></html>`;
 }
 
-export async function sendOrderConfirmation(order: OrderRow): Promise<void> {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    console.log("[email] RESEND_API_KEY not set — skipping confirmation email");
-    return;
-  }
-  const from = process.env.ORDER_FROM_EMAIL || "Eclatique <onboarding@resend.dev>";
+// Internal "new order" alert for the store owner, so they know to fulfill it.
+function renderAdminEmail(order: OrderRow): string {
+  const lines = JSON.parse(order.items) as OrderLine[];
+  const rows = lines
+    .map(
+      (l) =>
+        `<tr><td style="padding:6px 0;border-bottom:1px solid #eee">${esc(l.name)} <span style="color:#888">(${esc(l.size)}) x${Number(l.quantity)}</span></td><td style="padding:6px 0;border-bottom:1px solid #eee;text-align:right">Rs. ${(l.price * l.quantity).toLocaleString("en-IN")}.00</td></tr>`,
+    )
+    .join("");
+
+  return `<!doctype html><html><body style="font-family:Helvetica,Arial,sans-serif;color:#0a0a0a;padding:24px">
+    <h2 style="margin:0 0 12px">New paid order</h2>
+    <p style="font-size:13px;color:#555">Order ID: <strong>${esc(order.razorpayOrderId)}</strong> · Payment: <strong>${esc(order.razorpayPaymentId ?? "-")}</strong></p>
+    <table style="width:100%;max-width:520px;border-collapse:collapse;margin:12px 0;font-size:14px">${rows}
+      <tr><td style="padding:10px 0;font-weight:700">Total</td><td style="padding:10px 0;text-align:right;font-weight:700">${money(order.amount)}</td></tr>
+    </table>
+    <p style="font-size:14px"><strong>Ship to</strong><br>
+      ${esc(order.customerName)}<br>
+      ${esc(order.address)}, ${esc(order.city)} ${esc(order.postalCode)}<br>
+      Phone: ${esc(order.phone)}<br>
+      Email: ${esc(order.email)}
+    </p>
+  </body></html>`;
+}
+
+async function sendEmail(
+  apiKey: string,
+  from: string,
+  to: string,
+  subject: string,
+  html: string,
+): Promise<void> {
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -54,15 +79,40 @@ export async function sendOrderConfirmation(order: OrderRow): Promise<void> {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        from,
-        to: order.email,
-        subject: "Your Eclatique order is confirmed",
-        html: renderEmail(order),
-      }),
+      body: JSON.stringify({ from, to, subject, html }),
     });
     if (!res.ok) console.error("[email] Resend responded", res.status, await res.text());
   } catch (err) {
     console.error("[email] send failed", err);
+  }
+}
+
+export async function sendOrderConfirmation(order: OrderRow): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.log("[email] RESEND_API_KEY not set — skipping order emails");
+    return;
+  }
+  const from = process.env.ORDER_FROM_EMAIL || "Eclatique <onboarding@resend.dev>";
+
+  // Confirmation to the customer.
+  await sendEmail(
+    apiKey,
+    from,
+    order.email,
+    "Your Eclatique order is confirmed",
+    renderEmail(order),
+  );
+
+  // Alert to the store owner (if configured).
+  const notify = process.env.ORDER_NOTIFY_EMAIL;
+  if (notify) {
+    await sendEmail(
+      apiKey,
+      from,
+      notify,
+      `New order — ${order.customerName} (${money(order.amount)})`,
+      renderAdminEmail(order),
+    );
   }
 }
