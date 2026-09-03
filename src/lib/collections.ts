@@ -5,7 +5,7 @@ import {
   getProductsBySubCategory,
   getSaleProducts,
 } from "./products";
-import { CATEGORIES, SUBCATEGORIES } from "./taxonomy";
+import { CATEGORIES, SUBCATEGORIES, subCategoriesFor } from "./taxonomy";
 import type { Category, Product, SubCategory } from "./types";
 
 export interface CollectionDef {
@@ -52,7 +52,9 @@ export function getCollection(handle: string): CollectionDef | undefined {
   const [c, s] = handle.split("-");
   const catMatch = CATEGORIES.find((x) => x.slug === c);
   const subMatch = SUBCATEGORIES.find((x) => x.slug === s);
-  if (catMatch && subMatch)
+  const subAllowed =
+    subMatch && (!subMatch.categories || subMatch.categories.includes(c as Category));
+  if (catMatch && subMatch && subAllowed)
     return {
       handle,
       title: `${catMatch.label}'s ${subMatch.label}`,
@@ -67,7 +69,7 @@ export function getCollection(handle: string): CollectionDef | undefined {
 export function getAllCollectionHandles(): string[] {
   const base = ["all", "new", "sale", ...CATEGORIES.map((c) => c.slug)];
   const combos = CATEGORIES.flatMap((c) =>
-    SUBCATEGORIES.map((s) => `${c.slug}-${s.slug}`),
+    subCategoriesFor(c.slug).map((s) => `${c.slug}-${s.slug}`),
   );
   return [...base, ...combos];
 }

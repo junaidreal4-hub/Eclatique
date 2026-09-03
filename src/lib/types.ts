@@ -5,6 +5,7 @@ export type Category = "men" | "women";
 export type SubCategory =
   | "shirt"
   | "tshirt"
+  | "tops"
   | "bottomwear"
   | "jackets"
   | "accessories";

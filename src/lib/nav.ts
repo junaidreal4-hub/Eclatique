@@ -1,4 +1,4 @@
-import { CATEGORIES, SUBCATEGORIES } from "./taxonomy";
+import { CATEGORIES, subCategoriesFor } from "./taxonomy";
 
 export interface NavLink {
   href: string;
@@ -23,7 +23,7 @@ export const NAV_GROUPS: NavGroup[] = CATEGORIES.map((c) => ({
   href: `/collections/${c.slug}`,
   children: [
     { href: `/collections/${c.slug}`, label: `All ${c.label}` },
-    ...SUBCATEGORIES.map((s) => ({
+    ...subCategoriesFor(c.slug).map((s) => ({
       href: `/collections/${c.slug}-${s.slug}`,
       label: s.label,
     })),

@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { saveProductAction } from "@/app/admin/actions";
-import { ALL_SIZES, CATEGORIES, SUBCATEGORIES } from "@/lib/taxonomy";
+import { ALL_SIZES } from "@/lib/taxonomy";
 import type { Product } from "@/lib/types";
+import { CategorySelect } from "./category-select";
 import { ProductImageUploader } from "./product-image-uploader";
 
 const labelCls = "label mb-2 block text-[10px] text-faint";
@@ -47,28 +48,10 @@ export function ProductForm({ product }: { product?: Product }) {
             />
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-5">
-          <div>
-            <label className={labelCls}>Category *</label>
-            <select name="category" defaultValue={product?.category ?? "men"} className={inputCls}>
-              {CATEGORIES.map((c) => (
-                <option key={c.slug} value={c.slug}>
-                  {c.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className={labelCls}>Sub-category *</label>
-            <select name="subCategory" defaultValue={product?.subCategory ?? "shirt"} className={inputCls}>
-              {SUBCATEGORIES.map((s) => (
-                <option key={s.slug} value={s.slug}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+        <CategorySelect
+          defaultCategory={product?.category ?? "men"}
+          defaultSubCategory={product?.subCategory ?? "shirt"}
+        />
         <div>
           <label className={labelCls}>Variant Group (optional)</label>
           <input
