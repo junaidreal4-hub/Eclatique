@@ -67,6 +67,17 @@ export function Footer() {
           <p>&copy; {new Date().getFullYear()} Eclatique Clothing. All rights reserved.</p>
           <p className="label text-[10px]">Visa · Mastercard · UPI · RuPay</p>
         </div>
+        <div className="mt-6 text-center text-[11px] text-faint">
+          Crafted by{" "}
+          <a
+            href="https://mdjk.dev"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium tracking-wide text-muted transition-colors hover:text-ink"
+          >
+            MDJK.dev
+          </a>
+        </div>
       </div>
     </footer>
   );
