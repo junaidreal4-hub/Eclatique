@@ -158,36 +158,6 @@ export default function AboutPage() {
             minimalist wardrobe.
           </Para>
 
-          <Heading>How to Style Oversized Jackets in India</Heading>
-          <Para>
-            One of the most common questions in modern Indian styling is how to
-            handle &ldquo;oversized&rdquo; structures without looking bulky. The
-            secret lies in the balance of the silhouette.
-          </Para>
-          <ul className="mb-8 list-disc space-y-3 pl-6 text-muted marker:text-accent">
-            <li>
-              <strong>The Rule of Proportions:</strong> If you are wearing a wide,
-              oversized jacket from our{" "}
-              <Link href="/collections/men" className="font-semibold text-ink underline underline-offset-2">
-                Men&apos;s Collection
-              </Link>
-              , pair it with structured, slim-fit trousers to create a visual
-              anchor.
-            </li>
-            <li>
-              <strong>Fabric Choice:</strong> In the Indian climate, the weight of
-              the fabric matters. We use premium cotton and linen blends that let
-              our oversized pieces breathe, preventing that heavy, suffocating
-              feeling of traditional winter wear.
-            </li>
-            <li>
-              <strong>Layering:</strong> Minimalist layering involves playing with
-              different lengths. A cropped jacket over a long-line linen shirt
-              creates multiple levels to your silhouette, adding depth without
-              adding noise.
-            </li>
-          </ul>
-
           <Heading>The Role of Sustainability in Premium Fashion</Heading>
           <Para>
             You cannot have true minimalism without sustainability. Fast fashion is
@@ -196,17 +166,6 @@ export default function AboutPage() {
             washes, Eclatique reduces the &ldquo;cost per wear.&rdquo; When you
             invest in a piece with a timeless silhouette, you are exiting the cycle
             of disposability.
-          </Para>
-
-          <h3 className="mb-4 mt-10 text-xl font-bold uppercase tracking-tight">
-            Breathable Luxury: Linen and Cotton Essentials
-          </h3>
-          <Para>
-            For the Indian climate, linen is the ultimate luxury. It is a fabric
-            that gains character with time. Our collection focuses on
-            high-thread-count linens that offer a crisp silhouette while remaining
-            soft against the skin. Whether it is a formal shirt or a casual
-            throw-over, the material choice is as important as the design itself.
           </Para>
 
           <Heading>Final Thoughts: Wearing Who You Are</Heading>

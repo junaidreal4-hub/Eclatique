@@ -184,8 +184,9 @@ export default async function ProductPage({
                 <span className="hidden text-lg font-light group-open:inline">−</span>
               </summary>
               <p className="pb-5 text-sm leading-relaxed text-muted">
-                Free shipping on orders over Rs. 1999. Ships within 1 to 2 business
-                days. 7-day hassle-free returns on unworn items with tags.
+                Free delivery on orders over Rs. 799 (a flat Rs. 50 applies below
+                that). Ships within 1 to 2 business days. 7-day hassle-free returns
+                on unworn items with tags.
               </p>
             </details>
           </div>

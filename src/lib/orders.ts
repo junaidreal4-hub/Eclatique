@@ -2,6 +2,7 @@ import "server-only";
 import crypto from "node:crypto";
 import { prisma } from "./db";
 import { getProductById } from "./products";
+import { shippingFor } from "./shipping";
 import type { Size } from "./types";
 
 export interface CartItemInput {
@@ -76,7 +77,9 @@ export async function validateCart(
     rupees += product.price * quantity;
   }
 
-  return { lines, amountPaise: rupees * 100 };
+  // Add delivery: free at/above the threshold, flat fee below it.
+  const shipping = shippingFor(rupees);
+  return { lines, amountPaise: (rupees + shipping) * 100 };
 }
 
 export async function createPendingOrder(

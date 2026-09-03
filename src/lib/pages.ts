@@ -39,7 +39,7 @@ export const CONTENT_PAGES: Record<string, ContentPage> = {
       {
         heading: "Shipping",
         body: [
-          "We offer free delivery across India. Orders are dispatched within 1 to 2 business days and typically arrive within 3 to 7 business days depending on your location.",
+          "We offer free delivery on orders of Rs. 799 and above. A flat delivery fee of Rs. 50 applies to orders below Rs. 799. Orders are dispatched within 1 to 2 business days and typically arrive within 3 to 7 business days depending on your location.",
           "We currently ship within India only.",
         ],
       },

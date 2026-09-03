@@ -5,11 +5,13 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { formatPrice } from "@/lib/format";
 import { sizeLabel } from "@/lib/product-utils";
+import { FREE_SHIPPING_THRESHOLD, shippingFor } from "@/lib/shipping";
 import { useCart } from "./cart-context";
 
 export function CartDrawer() {
   const { isOpen, closeCart, lines, subtotal, updateQuantity, removeItem } =
     useCart();
+  const shipping = shippingFor(subtotal);
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
@@ -61,7 +63,9 @@ export function CartDrawer() {
             {/* Free-delivery note */}
             <div className="border-b border-line bg-subtle px-5 py-3">
               <p className="text-center text-xs font-medium text-ink">
-                🎉 Your order ships free across India.
+                {subtotal >= FREE_SHIPPING_THRESHOLD
+                  ? "🎉 Your order qualifies for free delivery."
+                  : `Add ${formatPrice(FREE_SHIPPING_THRESHOLD - subtotal)} more for free delivery.`}
               </p>
             </div>
 
@@ -121,13 +125,22 @@ export function CartDrawer() {
             </div>
 
             <div className="border-t border-line px-5 py-5">
-              <div className="mb-4 flex items-center justify-between">
-                <span className="label text-xs">Subtotal</span>
-                <span className="text-base font-semibold">{formatPrice(subtotal)}</span>
+              <div className="mb-2 flex items-center justify-between text-sm">
+                <span className="text-muted">Subtotal</span>
+                <span className="font-medium">{formatPrice(subtotal)}</span>
               </div>
-              <p className="mb-4 text-xs text-faint">
-                Shipping &amp; taxes calculated at checkout.
-              </p>
+              <div className="mb-3 flex items-center justify-between text-sm">
+                <span className="text-muted">Shipping</span>
+                <span className="font-medium">
+                  {shipping === 0 ? "Free" : formatPrice(shipping)}
+                </span>
+              </div>
+              <div className="mb-4 flex items-center justify-between border-t border-line pt-3">
+                <span className="label text-xs">Total</span>
+                <span className="text-base font-semibold">
+                  {formatPrice(subtotal + shipping)}
+                </span>
+              </div>
               <Link
                 href="/checkout"
                 onClick={closeCart}

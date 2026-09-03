@@ -1,5 +1,5 @@
 const MESSAGES = [
-  "Free Delivery Across India",
+  "Free Delivery on Orders Over Rs. 799",
   "Easy 3-Day Returns",
   "Secure Prepaid Checkout",
   "Choose the Unordinary",

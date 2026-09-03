@@ -3,10 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { formatPrice } from "@/lib/format";
+import { FREE_SHIPPING_THRESHOLD, shippingFor } from "@/lib/shipping";
 import { useCart } from "@/components/cart-context";
 
 export default function CartPage() {
   const { lines, subtotal, updateQuantity, removeItem, ready } = useCart();
+  const shipping = shippingFor(subtotal);
 
   return (
     <div className="mx-auto max-w-[1100px] px-4 py-12 sm:px-6">
@@ -82,13 +84,24 @@ export default function CartPage() {
               <span className="text-muted">Subtotal</span>
               <span className="font-medium">{formatPrice(subtotal)}</span>
             </div>
-            <div className="flex justify-between py-4 text-sm">
+            <div className="flex justify-between pt-4 text-sm">
               <span className="text-muted">Shipping</span>
-              <span className="text-muted">Calculated at checkout</span>
+              <span className="font-medium">
+                {shipping === 0 ? "Free" : formatPrice(shipping)}
+              </span>
+            </div>
+            {shipping > 0 && (
+              <p className="mt-1 text-xs text-faint">
+                Add {formatPrice(FREE_SHIPPING_THRESHOLD - subtotal)} more for free delivery.
+              </p>
+            )}
+            <div className="mt-4 flex justify-between border-t border-line pt-4 text-sm">
+              <span className="font-medium">Total</span>
+              <span className="font-semibold">{formatPrice(subtotal + shipping)}</span>
             </div>
             <Link
               href="/checkout"
-              className="label block bg-accent py-4 text-center text-[11px] text-paper transition-opacity hover:opacity-90"
+              className="label mt-6 block bg-accent py-4 text-center text-[11px] text-paper transition-opacity hover:opacity-90"
             >
               Checkout
             </Link>

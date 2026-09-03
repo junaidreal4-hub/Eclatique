@@ -15,6 +15,13 @@ function esc(value: string): string {
     .replace(/'/g, "&#39;");
 }
 
+function shippingRow(order: OrderRow, lines: OrderLine[]): string {
+  const subtotal = lines.reduce((n, l) => n + l.price * l.quantity, 0);
+  const shipping = order.amount / 100 - subtotal;
+  const value = shipping <= 0 ? "Free" : `Rs. ${shipping.toLocaleString("en-IN")}.00`;
+  return `<tr><td style="padding:8px 0">Shipping</td><td style="padding:8px 0;text-align:right">${value}</td></tr>`;
+}
+
 function renderEmail(order: OrderRow): string {
   const lines = JSON.parse(order.items) as OrderLine[];
   const rows = lines
@@ -32,6 +39,7 @@ function renderEmail(order: OrderRow): string {
         <p style="color:#555">Thank you for shopping with Eclatique. We're preparing your order now.</p>
         <p style="color:#555;font-size:13px">Order ID: <strong>${esc(order.razorpayOrderId)}</strong></p>
         <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px">${rows}
+          ${shippingRow(order, lines)}
           <tr><td style="padding:12px 0;font-weight:700">Total</td><td style="padding:12px 0;text-align:right;font-weight:700">${money(order.amount)}</td></tr>
         </table>
         <p style="color:#555;font-size:13px">Shipping to: ${esc(order.customerName)}, ${esc(order.address)}, ${esc(order.city)} ${esc(order.postalCode)}</p>
@@ -54,6 +62,7 @@ function renderAdminEmail(order: OrderRow): string {
     <h2 style="margin:0 0 12px">New paid order</h2>
     <p style="font-size:13px;color:#555">Order ID: <strong>${esc(order.razorpayOrderId)}</strong> · Payment: <strong>${esc(order.razorpayPaymentId ?? "-")}</strong></p>
     <table style="width:100%;max-width:520px;border-collapse:collapse;margin:12px 0;font-size:14px">${rows}
+      ${shippingRow(order, lines)}
       <tr><td style="padding:10px 0;font-weight:700">Total</td><td style="padding:10px 0;text-align:right;font-weight:700">${money(order.amount)}</td></tr>
     </table>
     <p style="font-size:14px"><strong>Ship to</strong><br>

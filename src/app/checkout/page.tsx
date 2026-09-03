@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { formatPrice } from "@/lib/format";
+import { shippingFor } from "@/lib/shipping";
 import { useCart } from "@/components/cart-context";
 
 type RazorpayInstance = { open: () => void; on: (event: string, cb: () => void) => void };
@@ -33,7 +34,7 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const shipping = 0; // free delivery across India
+  const shipping = shippingFor(subtotal);
   const total = subtotal + shipping;
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
