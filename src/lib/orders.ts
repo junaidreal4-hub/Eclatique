@@ -28,6 +28,9 @@ export interface CustomerDetails {
   postalCode: string;
 }
 
+/** A validation error whose message is safe to show the customer. */
+export class CheckoutError extends Error {}
+
 /**
  * Re-prices the cart from the database. The client's prices are ignored — the
  * amount charged is computed here from authoritative product data, and stock is
@@ -37,7 +40,7 @@ export async function validateCart(
   items: CartItemInput[],
 ): Promise<{ lines: OrderLine[]; amountPaise: number }> {
   if (!Array.isArray(items) || items.length === 0) {
-    throw new Error("Your cart is empty.");
+    throw new CheckoutError("Your cart is empty.");
   }
 
   const lines: OrderLine[] = [];
@@ -45,17 +48,17 @@ export async function validateCart(
 
   for (const item of items) {
     const product = await getProductById(Number(item.productId));
-    if (!product) throw new Error("A product in your cart is no longer available.");
+    if (!product) throw new CheckoutError("A product in your cart is no longer available.");
 
     const size = String(item.size) as Size;
     if (!product.sizes.includes(size)) {
-      throw new Error(`Invalid size selected for ${product.name}.`);
+      throw new CheckoutError(`Invalid size selected for ${product.name}.`);
     }
 
     const quantity = Math.max(1, Math.floor(Number(item.quantity) || 1));
     const available = product.stock[size] ?? 0;
     if (available < quantity) {
-      throw new Error(
+      throw new CheckoutError(
         available === 0
           ? `${product.name} (${size}) is sold out.`
           : `${product.name} (${size}) has only ${available} left.`,

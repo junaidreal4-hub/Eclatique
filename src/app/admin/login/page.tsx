@@ -30,9 +30,13 @@ export default async function AdminLoginPage({
             className="w-full border border-line bg-transparent px-4 py-3 text-sm outline-none focus:border-ink"
           />
         </div>
-        {error && (
+        {error === "locked" ? (
+          <p className="text-xs font-medium text-sale">
+            Too many attempts. Please wait 15 minutes and try again.
+          </p>
+        ) : error ? (
           <p className="text-xs font-medium text-sale">Incorrect password. Try again.</p>
-        )}
+        ) : null}
         <button
           type="submit"
           className="label w-full bg-accent py-4 text-[11px] text-paper transition-opacity hover:opacity-90"

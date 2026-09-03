@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import {
   endSession,
@@ -18,11 +19,45 @@ import { addReel, deleteReel, updateReelOrder } from "@/lib/reels";
 import { ALL_SIZES } from "@/lib/taxonomy";
 import type { Category, Size, SubCategory } from "@/lib/types";
 
+// In-memory brute-force throttle for admin login, keyed by client IP.
+// (Single PM2 instance, so a module-level map is sufficient.)
+const LOGIN_MAX_ATTEMPTS = 5;
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+const LOGIN_LOCK_MS = 15 * 60 * 1000;
+type LoginAttempt = { count: number; first: number; lockedUntil: number };
+const loginAttempts = new Map<string, LoginAttempt>();
+
+async function clientIp(): Promise<string> {
+  const h = await headers();
+  return (
+    h.get("x-forwarded-for")?.split(",")[0].trim() ||
+    h.get("x-real-ip") ||
+    "unknown"
+  );
+}
+
 export async function loginAction(formData: FormData) {
+  const ip = await clientIp();
+  const now = Date.now();
+  const rec = loginAttempts.get(ip);
+
+  if (rec && rec.lockedUntil > now) {
+    redirect("/admin/login?error=locked");
+  }
+
   const password = String(formData.get("password") ?? "");
   if (!verifyPassword(password)) {
+    if (!rec || now - rec.first > LOGIN_WINDOW_MS) {
+      loginAttempts.set(ip, { count: 1, first: now, lockedUntil: 0 });
+    } else {
+      rec.count += 1;
+      if (rec.count >= LOGIN_MAX_ATTEMPTS) rec.lockedUntil = now + LOGIN_LOCK_MS;
+      loginAttempts.set(ip, rec);
+    }
     redirect("/admin/login?error=1");
   }
+
+  loginAttempts.delete(ip); // success clears the counter
   await startSession();
   redirect("/admin");
 }

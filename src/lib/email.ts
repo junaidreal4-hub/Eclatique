@@ -5,12 +5,22 @@ function money(paise: number): string {
   return `Rs. ${(paise / 100).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`;
 }
 
+// Escape any customer-supplied text before it goes into the email HTML.
+function esc(value: string): string {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function renderEmail(order: OrderRow): string {
   const lines = JSON.parse(order.items) as OrderLine[];
   const rows = lines
     .map(
       (l) =>
-        `<tr><td style="padding:8px 0;border-bottom:1px solid #eee">${l.name} <span style="color:#888">(${l.size}) x${l.quantity}</span></td><td style="padding:8px 0;border-bottom:1px solid #eee;text-align:right">Rs. ${(l.price * l.quantity).toLocaleString("en-IN")}.00</td></tr>`,
+        `<tr><td style="padding:8px 0;border-bottom:1px solid #eee">${esc(l.name)} <span style="color:#888">(${esc(l.size)}) x${Number(l.quantity)}</span></td><td style="padding:8px 0;border-bottom:1px solid #eee;text-align:right">Rs. ${(l.price * l.quantity).toLocaleString("en-IN")}.00</td></tr>`,
     )
     .join("");
 
@@ -20,11 +30,11 @@ function renderEmail(order: OrderRow): string {
       <div style="padding:28px">
         <h1 style="font-size:20px;margin:0 0 8px">Your order is confirmed</h1>
         <p style="color:#555">Thank you for shopping with Eclatique. We're preparing your order now.</p>
-        <p style="color:#555;font-size:13px">Order ID: <strong>${order.razorpayOrderId}</strong></p>
+        <p style="color:#555;font-size:13px">Order ID: <strong>${esc(order.razorpayOrderId)}</strong></p>
         <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px">${rows}
           <tr><td style="padding:12px 0;font-weight:700">Total</td><td style="padding:12px 0;text-align:right;font-weight:700">${money(order.amount)}</td></tr>
         </table>
-        <p style="color:#555;font-size:13px">Shipping to: ${order.customerName}, ${order.address}, ${order.city} ${order.postalCode}</p>
+        <p style="color:#555;font-size:13px">Shipping to: ${esc(order.customerName)}, ${esc(order.address)}, ${esc(order.city)} ${esc(order.postalCode)}</p>
       </div>
       <div style="background:#f8f8f8;text-align:center;padding:18px;font-size:12px;color:#999">&copy; ${new Date().getFullYear()} Eclatique Clothing</div>
     </div></body></html>`;

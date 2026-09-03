@@ -4,7 +4,7 @@ import { getAllCollectionHandles } from "@/lib/collections";
 
 export const dynamic = "force-dynamic";
 
-const base = process.env.NEXT_PUBLIC_SITE_URL || "https://eclatique.in";
+const base = process.env.NEXT_PUBLIC_SITE_URL || "https://eclatiqueclothing.in";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPaths = [

@@ -14,7 +14,9 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://eclatique.in"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://eclatiqueclothing.in",
+  ),
   title: {
     default: "Eclatique | Choose the Unordinary",
     template: "%s · Eclatique",

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
-import { createPendingOrder, validateCart } from "@/lib/orders";
+import { CheckoutError, createPendingOrder, validateCart } from "@/lib/orders";
 
 export async function POST(req: Request) {
   try {
@@ -45,7 +45,14 @@ export async function POST(req: Request) {
       keyId,
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Could not start checkout.";
-    return NextResponse.json({ error: message }, { status: 400 });
+    // Only surface our own validation messages; hide any internal error detail.
+    if (err instanceof CheckoutError) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
+    }
+    console.error("[checkout] create-order failed:", err);
+    return NextResponse.json(
+      { error: "Could not start checkout. Please try again." },
+      { status: 500 },
+    );
   }
 }
