@@ -3,15 +3,18 @@
 import Image from "next/image";
 import { useState } from "react";
 import { useCart } from "./cart-context";
+import { ONE_SIZE, isOneSize } from "@/lib/product-utils";
 import type { Product, Size } from "@/lib/types";
 
 export function ProductDetailActions({ product }: { product: Product }) {
   const { addItem } = useCart();
-  const [size, setSize] = useState<Size | null>(null);
+  const oneSize = isOneSize(product);
+  const [size, setSize] = useState<Size | null>(oneSize ? ONE_SIZE : null);
   const [error, setError] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
 
   const selectedStock = size ? (product.stock[size] ?? 0) : 0;
+  const oneSizeSoldOut = oneSize && (product.stock[ONE_SIZE] ?? 0) <= 0;
   const guideImage =
     product.category === "women"
       ? "/brand/size-guide-women.webp"
@@ -23,6 +26,30 @@ export function ProductDetailActions({ product }: { product: Product }) {
       return;
     }
     addItem(product, size);
+  }
+
+  if (oneSize) {
+    return (
+      <div>
+        {selectedStock > 0 && selectedStock <= 5 && (
+          <p className="mb-4 text-xs font-medium text-sale">
+            Only {selectedStock} left.
+          </p>
+        )}
+        <button
+          type="button"
+          onClick={handleAdd}
+          disabled={oneSizeSoldOut}
+          className={`label w-full py-4 text-[11px] transition-opacity ${
+            oneSizeSoldOut
+              ? "cursor-not-allowed bg-line text-faint"
+              : "bg-accent text-paper hover:opacity-90"
+          }`}
+        >
+          {oneSizeSoldOut ? "Sold Out" : "Add to Cart"}
+        </button>
+      </div>
+    );
   }
 
   return (

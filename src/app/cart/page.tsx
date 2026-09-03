@@ -38,7 +38,7 @@ export default function CartPage() {
                     <div>
                       <p className="font-medium">{line.name}</p>
                       <p className="mt-1 text-xs text-faint">
-                        {line.colorway} · Size {line.size}
+                        {line.colorway} · {line.size === "OS" ? "One Size" : `Size ${line.size}`}
                       </p>
                     </div>
                     <p className="font-medium">{formatPrice(line.price * line.quantity)}</p>

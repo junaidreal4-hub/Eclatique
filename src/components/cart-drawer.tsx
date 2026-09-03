@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
 import { formatPrice } from "@/lib/format";
+import { sizeLabel } from "@/lib/product-utils";
 import { useCart } from "./cart-context";
 
 export function CartDrawer() {
@@ -80,7 +81,7 @@ export function CartDrawer() {
                         <div>
                           <p className="text-sm font-medium leading-tight">{line.name}</p>
                           <p className="mt-0.5 text-xs text-faint">
-                            {line.colorway} · {line.size}
+                            {line.colorway} · {sizeLabel(line.size)}
                           </p>
                         </div>
                         <button

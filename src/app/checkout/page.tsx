@@ -200,7 +200,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex-1 text-sm">
                   <p className="font-medium leading-tight">{line.name}</p>
-                  <p className="text-xs text-faint">{line.size} · Qty {line.quantity}</p>
+                  <p className="text-xs text-faint">{line.size === "OS" ? "One Size" : line.size} · Qty {line.quantity}</p>
                 </div>
                 <span className="text-sm">{formatPrice(line.price * line.quantity)}</span>
               </li>

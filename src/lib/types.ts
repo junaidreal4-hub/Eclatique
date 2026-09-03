@@ -1,4 +1,5 @@
-export type Size = "XS" | "S" | "M" | "L" | "XL" | "XXL" | "XXXL";
+// "OS" = One Size, used for accessories and other items sold without sizing.
+export type Size = "XS" | "S" | "M" | "L" | "XL" | "XXL" | "XXXL" | "OS";
 
 export type Category = "men" | "women";
 

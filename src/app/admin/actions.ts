@@ -35,11 +35,19 @@ export async function logoutAction() {
 function parseProductInput(formData: FormData): ProductInput {
   const sizes: Size[] = [];
   const stock: Partial<Record<Size, number>> = {};
-  for (const size of ALL_SIZES) {
-    const raw = formData.get(`stock_${size}`);
-    if (raw !== null && String(raw).trim() !== "") {
-      sizes.push(size);
-      stock[size] = Math.max(0, Math.floor(Number(raw) || 0));
+
+  if (formData.get("oneSize") === "on") {
+    // Accessory / no-size item: a single "One Size" entry with one stock count.
+    const qty = Math.max(0, Math.floor(Number(formData.get("os_stock")) || 0));
+    sizes.push("OS");
+    stock["OS"] = qty;
+  } else {
+    for (const size of ALL_SIZES) {
+      const raw = formData.get(`stock_${size}`);
+      if (raw !== null && String(raw).trim() !== "") {
+        sizes.push(size);
+        stock[size] = Math.max(0, Math.floor(Number(raw) || 0));
+      }
     }
   }
 

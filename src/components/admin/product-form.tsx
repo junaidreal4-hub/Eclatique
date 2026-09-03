@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { saveProductAction } from "@/app/admin/actions";
-import { ALL_SIZES } from "@/lib/taxonomy";
 import type { Product } from "@/lib/types";
 import { CategorySelect } from "./category-select";
 import { ProductImageUploader } from "./product-image-uploader";
+import { SizeStockFields } from "./size-stock-fields";
 
 const labelCls = "label mb-2 block text-[10px] text-faint";
 const inputCls =
@@ -68,30 +68,7 @@ export function ProductForm({ product }: { product?: Product }) {
         </div>
       </section>
 
-      <section>
-        <label className={labelCls}>Sizes &amp; Stock</label>
-        <p className="mb-3 text-xs text-faint">
-          Enter a quantity to offer a size (0 = shown but sold out). Leave blank to hide the size.
-        </p>
-        <div className="grid grid-cols-4 gap-3 sm:grid-cols-7">
-          {ALL_SIZES.map((size) => {
-            const offered = product?.sizes.includes(size);
-            const value = offered ? (product?.stock[size] ?? 0) : "";
-            return (
-              <div key={size}>
-                <label className="mb-1 block text-center text-xs font-medium">{size}</label>
-                <input
-                  name={`stock_${size}`}
-                  type="number"
-                  min="0"
-                  defaultValue={value}
-                  className="w-full border border-line bg-transparent px-2 py-2 text-center text-sm outline-none focus:border-ink"
-                />
-              </div>
-            );
-          })}
-        </div>
-      </section>
+      <SizeStockFields product={product} />
 
       <section>
         <label className={labelCls}>Product Photos</label>
