@@ -1,4 +1,5 @@
-import { getAllOrders } from "@/lib/orders";
+import Link from "next/link";
+import { expireStalePendingOrders, getAllOrders } from "@/lib/orders";
 import { formatPrice } from "@/lib/format";
 
 interface OrderLine {
@@ -7,14 +8,57 @@ interface OrderLine {
   quantity: number;
 }
 
-export default async function AdminOrdersPage() {
+type Filter = "all" | "paid" | "pending" | "expired";
+const FILTERS: Filter[] = ["all", "paid", "pending", "expired"];
+
+export default async function AdminOrdersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
+  // Clean up abandoned checkouts before listing.
+  await expireStalePendingOrders();
+
   const orders = await getAllOrders();
+  const { status } = await searchParams;
+  const active: Filter = FILTERS.includes(status as Filter)
+    ? (status as Filter)
+    : "all";
+
+  const counts = {
+    all: orders.length,
+    paid: orders.filter((o) => o.status === "paid").length,
+    pending: orders.filter((o) => o.status === "pending").length,
+    expired: orders.filter((o) => o.status === "expired").length,
+  };
+
+  const visible =
+    active === "all" ? orders : orders.filter((o) => o.status === active);
 
   return (
     <div>
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-3xl font-bold tracking-tight">Orders</h1>
-        <p className="mt-1 text-sm text-muted">{orders.length} total</p>
+        <p className="mt-1 text-sm text-muted">
+          {counts.paid} paid · {counts.pending} pending · {counts.expired} expired
+        </p>
+      </div>
+
+      {/* Filter tabs */}
+      <div className="mb-6 flex flex-wrap gap-2">
+        {FILTERS.map((f) => (
+          <Link
+            key={f}
+            href={f === "all" ? "/admin/orders" : `/admin/orders?status=${f}`}
+            className={`label px-3 py-1.5 text-[10px] capitalize transition-colors ${
+              active === f
+                ? "bg-accent text-paper"
+                : "border border-line text-muted hover:text-ink"
+            }`}
+          >
+            {f} ({counts[f]})
+          </Link>
+        ))}
       </div>
 
       <div className="overflow-x-auto border border-line bg-paper">
@@ -29,10 +73,10 @@ export default async function AdminOrdersPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-line align-top">
-            {orders.map((o) => {
+            {visible.map((o) => {
               const items = JSON.parse(o.items || "[]") as OrderLine[];
               return (
-                <tr key={o.id}>
+                <tr key={o.id} className={o.status !== "paid" ? "opacity-70" : ""}>
                   <td className="p-4">
                     <p className="font-mono text-xs">{o.razorpayOrderId}</p>
                     <p className="mt-1 text-[11px] text-faint">
@@ -78,10 +122,12 @@ export default async function AdminOrdersPage() {
                 </tr>
               );
             })}
-            {orders.length === 0 && (
+            {visible.length === 0 && (
               <tr>
                 <td colSpan={5} className="p-10 text-center text-muted">
-                  No orders yet.
+                  {orders.length === 0
+                    ? "No orders yet."
+                    : `No ${active} orders.`}
                 </td>
               </tr>
             )}

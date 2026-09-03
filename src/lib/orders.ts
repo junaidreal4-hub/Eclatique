@@ -126,8 +126,10 @@ export async function fulfillOrder(
   razorpayOrderId: string,
   paymentId: string,
 ): Promise<OrderRow | null> {
+  // Fulfill from pending OR expired (a payment may land after our local expiry
+  // sweep); once "paid" it won't match again, preserving idempotency.
   const res = await prisma.order.updateMany({
-    where: { razorpayOrderId, status: "pending" },
+    where: { razorpayOrderId, status: { in: ["pending", "expired"] } },
     data: { status: "paid", razorpayPaymentId: paymentId },
   });
   if (res.count === 0) return null; // already processed, or unknown order
@@ -152,6 +154,19 @@ export async function fulfillOrder(
 
 export async function getAllOrders() {
   return prisma.order.findMany({ orderBy: { createdAt: "desc" } });
+}
+
+// Pending orders older than this are abandoned checkouts; mark them "expired".
+const PENDING_TTL_MS = 24 * 60 * 60 * 1000;
+
+/** Marks stale pending orders (abandoned checkouts) as "expired". */
+export async function expireStalePendingOrders(): Promise<number> {
+  const cutoff = new Date(Date.now() - PENDING_TTL_MS);
+  const res = await prisma.order.updateMany({
+    where: { status: "pending", createdAt: { lt: cutoff } },
+    data: { status: "expired" },
+  });
+  return res.count;
 }
 
 export async function countOrders() {
