@@ -271,9 +271,17 @@ export async function trackShipment(awb: string): Promise<TrackResult> {
       }))
       .filter((e) => e.status);
 
+    // Authoritative current status lives at orderInformation.currentShipmentPhase;
+    // the statuses[] array is chronological, so its last entry is also current.
+    const oi = (data as Record<string, unknown> | null)?.orderInformation as
+      | Record<string, unknown>
+      | undefined;
     const currentStatus =
-      deepFind(data, "currentStatus") ?? deepFind(data, "orderStatus") ??
-      deepFind(data, "status") ?? events[events.length - 1]?.status;
+      str(oi?.currentShipmentPhase) ??
+      deepFind(data, "currentShipmentPhase") ??
+      events[events.length - 1]?.status ??
+      deepFind(data, "currentStatus") ??
+      deepFind(data, "orderStatus");
 
     if (!events.length) {
       console.warn("[innofulfill] track: no events parsed:", text.slice(0, 500));
