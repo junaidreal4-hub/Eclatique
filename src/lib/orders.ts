@@ -26,6 +26,7 @@ export interface CustomerDetails {
   phone: string;
   address: string;
   city: string;
+  state: string;
   postalCode: string;
 }
 
@@ -97,6 +98,7 @@ export async function createPendingOrder(
       phone: customer.phone,
       address: customer.address,
       city: customer.city,
+      state: customer.state,
       postalCode: customer.postalCode,
       items: JSON.stringify(lines),
     },
@@ -157,6 +159,10 @@ export async function fulfillOrder(
 
 export async function getAllOrders() {
   return prisma.order.findMany({ orderBy: { createdAt: "desc" } });
+}
+
+export async function getOrderById(id: number) {
+  return prisma.order.findUnique({ where: { id } });
 }
 
 // Pending orders older than this are abandoned checkouts; mark them "expired".

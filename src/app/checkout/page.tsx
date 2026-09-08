@@ -59,6 +59,7 @@ export default function CheckoutPage() {
       phone: fd.get("phone"),
       address: fd.get("address"),
       city: fd.get("city"),
+      state: fd.get("state"),
       postalCode: fd.get("postal_code"),
     };
     const items = lines.map((l) => ({
@@ -171,7 +172,10 @@ export default function CheckoutPage() {
                 <Field label="Address" name="address" />
               </div>
               <Field label="City" name="city" />
-              <Field label="Postal code" name="postal_code" />
+              <StateField />
+              <div className="col-span-2">
+                <Field label="Postal code" name="postal_code" />
+              </div>
             </div>
           </section>
 
@@ -257,6 +261,40 @@ function Field({
         required={required}
         className="w-full border-b border-line bg-transparent py-2 text-sm outline-none transition-colors focus:border-ink placeholder:text-faint"
       />
+    </label>
+  );
+}
+
+const INDIAN_STATES = [
+  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
+  "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka",
+  "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram",
+  "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
+  "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal",
+  "Andaman and Nicobar Islands", "Chandigarh",
+  "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir",
+  "Ladakh", "Lakshadweep", "Puducherry",
+];
+
+function StateField() {
+  return (
+    <label className="block">
+      <span className="label mb-2 block text-[10px] text-faint">State</span>
+      <select
+        name="state"
+        required
+        defaultValue=""
+        className="w-full border-b border-line bg-transparent py-2 text-sm outline-none transition-colors focus:border-ink"
+      >
+        <option value="" disabled>
+          Select state
+        </option>
+        {INDIAN_STATES.map((s) => (
+          <option key={s} value={s}>
+            {s}
+          </option>
+        ))}
+      </select>
     </label>
   );
 }

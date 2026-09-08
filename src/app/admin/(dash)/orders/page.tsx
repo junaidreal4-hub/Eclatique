@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { retryShipmentAction } from "@/app/admin/actions";
 import { expireStalePendingOrders, getAllOrders } from "@/lib/orders";
+import { isConfigured as shipmentConfigured } from "@/lib/shipping-innofulfill";
 import { formatPrice } from "@/lib/format";
 
 interface OrderLine {
@@ -34,6 +36,8 @@ export default async function AdminOrdersPage({
 
   const visible =
     active === "all" ? orders : orders.filter((o) => o.status === active);
+
+  const shippingOn = shipmentConfigured();
 
   return (
     <div>
@@ -118,6 +122,28 @@ export default async function AdminOrdersPage({
                     >
                       {o.status}
                     </span>
+                    {shippingOn && o.status === "paid" && (
+                      <div className="mt-2 text-[11px] leading-relaxed">
+                        {o.awbNumber ? (
+                          <>
+                            <p className="font-mono text-ink">AWB {o.awbNumber}</p>
+                            <p className="text-faint">{o.shipmentStatus ?? "booked"}</p>
+                          </>
+                        ) : (
+                          <div className="space-y-1">
+                            {o.shipmentError && (
+                              <p className="text-sale">Booking failed</p>
+                            )}
+                            <form action={retryShipmentAction}>
+                              <input type="hidden" name="id" value={o.id} />
+                              <button className="label border border-line px-2 py-1 text-[9px] hover:bg-subtle">
+                                {o.shipmentError ? "Retry booking" : "Book shipment"}
+                              </button>
+                            </form>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </td>
                 </tr>
               );

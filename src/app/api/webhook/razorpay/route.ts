@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "node:crypto";
 import { fulfillOrder } from "@/lib/orders";
 import { sendOrderConfirmation } from "@/lib/email";
+import { createShipmentForOrder } from "@/lib/shipping-innofulfill";
 
 // Backup fulfilment path. Configure the webhook + secret in the Razorpay
 // dashboard to enable it; without RAZORPAY_WEBHOOK_SECRET it is a no-op.
@@ -26,7 +27,10 @@ export async function POST(req: Request) {
     const paymentId = entity?.id;
     if (orderId) {
       const order = await fulfillOrder(orderId, paymentId);
-      if (order) await sendOrderConfirmation(order);
+      if (order) {
+        await sendOrderConfirmation(order);
+        await createShipmentForOrder(order);
+      }
     }
   }
 

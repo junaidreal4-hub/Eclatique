@@ -5,9 +5,9 @@ import { CheckoutError, createPendingOrder, validateCart } from "@/lib/orders";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { items, email, firstName, lastName, phone, address, city, postalCode } = body ?? {};
+    const { items, email, firstName, lastName, phone, address, city, state, postalCode } = body ?? {};
 
-    if (!email || !firstName || !phone || !address || !city || !postalCode) {
+    if (!email || !firstName || !phone || !address || !city || !state || !postalCode) {
       return NextResponse.json(
         { error: "Please fill in all contact and shipping details." },
         { status: 400 },
@@ -36,6 +36,7 @@ export async function POST(req: Request) {
       phone: String(phone),
       address: String(address),
       city: String(city),
+      state: String(state),
       postalCode: String(postalCode),
     });
 

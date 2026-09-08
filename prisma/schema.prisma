@@ -50,8 +50,14 @@ model Order {
   phone             String
   address           String
   city              String
+  state             String   @default("")
   postalCode        String
   items             String   @default("[]") // JSON snapshot of purchased lines
+  // Innofulfill shipment (set after a successful booking)
+  shipmentOrderId   String? // Innofulfill's order id
+  awbNumber         String? // carrier tracking number
+  shipmentStatus    String? // CONFIRMED | PROCESSING | DELIVERED | RTO | ...
+  shipmentError     String? // last booking error, if booking failed
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { fulfillOrder, verifySignature } from "@/lib/orders";
 import { sendOrderConfirmation } from "@/lib/email";
+import { createShipmentForOrder } from "@/lib/shipping-innofulfill";
 
 export async function POST(req: Request) {
   try {
@@ -27,6 +28,7 @@ export async function POST(req: Request) {
     if (order) {
       revalidatePath("/", "layout");
       await sendOrderConfirmation(order);
+      await createShipmentForOrder(order);
     }
 
     return NextResponse.json({ status: "success", orderId: razorpay_order_id });
