@@ -38,6 +38,7 @@ function renderEmail(order: OrderRow): string {
         <h1 style="font-size:20px;margin:0 0 8px">Your order is confirmed</h1>
         <p style="color:#555">Thank you for shopping with Eclatique. We're preparing your order now.</p>
         <p style="color:#555;font-size:13px">Order ID: <strong>${esc(order.razorpayOrderId)}</strong></p>
+        <p style="margin:16px 0"><a href="${(process.env.NEXT_PUBLIC_SITE_URL || "https://eclatiqueclothing.in")}/track" style="display:inline-block;background:#3e2723;color:#fff;text-decoration:none;padding:10px 20px;font-size:13px;letter-spacing:1px">Track your order</a></p>
         <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px">${rows}
           ${shippingRow(order, lines)}
           <tr><td style="padding:12px 0;font-weight:700">Total</td><td style="padding:12px 0;text-align:right;font-weight:700">${money(order.amount)}</td></tr>

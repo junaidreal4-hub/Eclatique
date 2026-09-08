@@ -202,6 +202,88 @@ export async function createShipmentForOrder(order: OrderRow): Promise<BookingRe
   }
 }
 
+// ---- Tracking ------------------------------------------------------------
+
+export interface TrackEvent {
+  status: string;
+  timestamp?: string;
+  location?: string;
+}
+export interface TrackResult {
+  ok: boolean;
+  currentStatus?: string;
+  events: TrackEvent[];
+  error?: string;
+}
+
+// The tracking response nests the scan history under one of several keys.
+function findStatusArray(root: unknown): Record<string, unknown>[] {
+  const keys = [
+    "statuses", "tracking", "trackingHistory", "history", "scans",
+    "events", "checkpoints", "timeline",
+  ];
+  const queue: unknown[] = [root];
+  while (queue.length) {
+    const cur = queue.shift();
+    if (!cur || typeof cur !== "object") continue;
+    for (const [k, v] of Object.entries(cur as Record<string, unknown>)) {
+      if (Array.isArray(v) && keys.includes(k) && v.length && typeof v[0] === "object") {
+        return v as Record<string, unknown>[];
+      }
+      if (v && typeof v === "object") queue.push(v);
+    }
+  }
+  return [];
+}
+
+function str(v: unknown): string | undefined {
+  return typeof v === "string" && v.trim() ? v.trim() : undefined;
+}
+
+/** Fetches live tracking for an AWB. Never throws. */
+export async function trackShipment(awb: string): Promise<TrackResult> {
+  if (!isConfigured() || !awb) return { ok: false, events: [], error: "unavailable" };
+  try {
+    const res = await fetch(
+      `${BASE_URL}/gateway/tracking-v2/api/tracking/awb/${encodeURIComponent(awb)}`,
+      { headers: { "api-key": API_KEY, accept: "application/json" } },
+    );
+    const text = await res.text();
+    if (!res.ok) return { ok: false, events: [], error: `Tracking ${res.status}` };
+
+    let data: unknown = {};
+    try {
+      data = JSON.parse(text);
+    } catch {
+      /* non-JSON */
+    }
+
+    const rows = findStatusArray(data);
+    const events: TrackEvent[] = rows
+      .map((e) => ({
+        status:
+          str(e.status) ?? str(e.statusName) ?? str(e.state) ??
+          str(e.eventCode) ?? str(e.description) ?? "",
+        timestamp:
+          str(e.timestamp) ?? str(e.time) ?? str(e.date) ??
+          str(e.updatedAt) ?? str(e.createdAt),
+        location: str(e.location) ?? str(e.city) ?? str(e.hub),
+      }))
+      .filter((e) => e.status);
+
+    const currentStatus =
+      deepFind(data, "currentStatus") ?? deepFind(data, "orderStatus") ??
+      deepFind(data, "status") ?? events[events.length - 1]?.status;
+
+    if (!events.length) {
+      console.warn("[innofulfill] track: no events parsed:", text.slice(0, 500));
+    }
+    return { ok: true, currentStatus, events };
+  } catch (err) {
+    return { ok: false, events: [], error: err instanceof Error ? err.message : "track error" };
+  }
+}
+
 // ---- Webhook -------------------------------------------------------------
 
 /** Verifies the X-Webhook-Signature (HMAC-SHA256 of the raw body). */

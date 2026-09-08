@@ -165,6 +165,10 @@ export async function getOrderById(id: number) {
   return prisma.order.findUnique({ where: { id } });
 }
 
+export async function getOrderByRazorpayId(razorpayOrderId: string) {
+  return prisma.order.findUnique({ where: { razorpayOrderId } });
+}
+
 // Pending orders older than this are abandoned checkouts; mark them "expired".
 const PENDING_TTL_MS = 24 * 60 * 60 * 1000;
 

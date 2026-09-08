@@ -41,6 +41,7 @@ export const FOOTER_SHOP: NavLink[] = [
 export const FOOTER_POLICIES: NavLink[] = [
   { href: "/pages/about", label: "About Us" },
   { href: "/pages/contact", label: "Contact Us" },
+  { href: "/track", label: "Track Order" },
   { href: "/pages/shipping-returns", label: "Shipping & Returns" },
   { href: "/pages/terms", label: "Terms & Conditions" },
   { href: "/pages/privacy", label: "Privacy Policy" },
