@@ -17,8 +17,10 @@ export default async function EditProductPage({
       <Link href="/admin/products" className="text-sm text-muted hover:text-ink">
         &larr; Products
       </Link>
-      <h1 className="mb-8 mt-3 text-3xl font-bold tracking-tight">Edit Product</h1>
-      <ProductForm product={product} />
+      <h1 className="mb-8 mt-3 text-3xl font-extrabold tracking-tight">Edit Product</h1>
+      <div className="max-w-2xl border border-line bg-paper p-6 sm:p-8">
+        <ProductForm product={product} />
+      </div>
     </div>
   );
 }

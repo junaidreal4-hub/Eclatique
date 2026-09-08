@@ -10,8 +10,9 @@ export default async function AdminReelsPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold tracking-tight">Reels</h1>
-      <p className="mt-1 text-sm text-muted">
+      <p className="label mb-1 text-[10px] text-faint">Homepage</p>
+      <h1 className="text-3xl font-extrabold tracking-tight">Reels</h1>
+      <p className="mt-1.5 text-[12.5px] text-muted">
         The videos in the &ldquo;Eclatique in Motion&rdquo; section on the homepage.
       </p>
 
