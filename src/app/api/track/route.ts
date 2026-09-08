@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getOrderByRazorpayId } from "@/lib/orders";
+import { getOrderByRazorpayId, setShipmentStatus } from "@/lib/orders";
 import { trackShipment } from "@/lib/shipping-innofulfill";
 
 // Customer order tracking. Requires order id + matching email, so one customer
@@ -34,7 +34,13 @@ export async function POST(req: Request) {
     if (order.awbNumber) {
       const track = await trackShipment(order.awbNumber);
       if (track.ok) {
-        if (track.currentStatus) result.currentStatus = track.currentStatus;
+        if (track.currentStatus) {
+          result.currentStatus = track.currentStatus;
+          // Keep the stored status (shown in admin) in sync with live tracking.
+          if (track.currentStatus !== order.shipmentStatus) {
+            await setShipmentStatus(order.id, track.currentStatus).catch(() => {});
+          }
+        }
         result.events = track.events;
       }
     }

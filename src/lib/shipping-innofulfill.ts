@@ -284,6 +284,20 @@ export async function trackShipment(awb: string): Promise<TrackResult> {
   }
 }
 
+/** Pulls live status and saves it to the order. Returns the status, or null. */
+export async function syncShipmentStatus(order: OrderRow): Promise<string | null> {
+  if (!order.awbNumber) return null;
+  const track = await trackShipment(order.awbNumber);
+  if (track.ok && track.currentStatus) {
+    await prisma.order.update({
+      where: { id: order.id },
+      data: { shipmentStatus: track.currentStatus },
+    });
+    return track.currentStatus;
+  }
+  return null;
+}
+
 // ---- Webhook -------------------------------------------------------------
 
 /** Verifies the X-Webhook-Signature (HMAC-SHA256 of the raw body). */

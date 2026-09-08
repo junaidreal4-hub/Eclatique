@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { retryShipmentAction } from "@/app/admin/actions";
+import { refreshShipmentStatusAction, retryShipmentAction } from "@/app/admin/actions";
 import { expireStalePendingOrders, getAllOrders } from "@/lib/orders";
 import { isConfigured as shipmentConfigured } from "@/lib/shipping-innofulfill";
 import { formatPrice } from "@/lib/format";
@@ -128,6 +128,12 @@ export default async function AdminOrdersPage({
                           <>
                             <p className="font-mono text-ink">AWB {o.awbNumber}</p>
                             <p className="text-faint">{o.shipmentStatus ?? "booked"}</p>
+                            <form action={refreshShipmentStatusAction} className="mt-1">
+                              <input type="hidden" name="id" value={o.id} />
+                              <button className="text-[10px] text-muted underline underline-offset-2 hover:text-ink">
+                                Refresh status
+                              </button>
+                            </form>
                           </>
                         ) : (
                           <div className="space-y-1">

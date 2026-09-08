@@ -16,7 +16,7 @@ import {
   type ProductInput,
 } from "@/lib/products";
 import { getOrderById } from "@/lib/orders";
-import { createShipmentForOrder } from "@/lib/shipping-innofulfill";
+import { createShipmentForOrder, syncShipmentStatus } from "@/lib/shipping-innofulfill";
 import { addReel, deleteReel, updateReelOrder } from "@/lib/reels";
 import { ALL_SIZES } from "@/lib/taxonomy";
 import type { Category, Size, SubCategory } from "@/lib/types";
@@ -157,6 +157,19 @@ export async function retryShipmentAction(formData: FormData) {
     const order = await getOrderById(id);
     if (order && order.status === "paid") {
       await createShipmentForOrder(order);
+      revalidatePath("/admin/orders");
+    }
+  }
+  redirect("/admin/orders");
+}
+
+export async function refreshShipmentStatusAction(formData: FormData) {
+  if (!(await isAuthenticated())) redirect("/admin/login");
+  const id = Number(formData.get("id"));
+  if (id) {
+    const order = await getOrderById(id);
+    if (order?.awbNumber) {
+      await syncShipmentStatus(order);
       revalidatePath("/admin/orders");
     }
   }
