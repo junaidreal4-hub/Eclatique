@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { prettyStatus } from "@/lib/product-utils";
 
 interface TrackEvent {
   status: string;
@@ -114,7 +115,7 @@ export default function TrackPage() {
               <p className="font-mono text-sm">{result.orderId}</p>
             </div>
             <span className="label bg-accent px-3 py-1 text-[10px] text-paper">
-              {result.currentStatus}
+              {prettyStatus(result.currentStatus)}
             </span>
           </div>
 

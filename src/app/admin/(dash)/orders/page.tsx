@@ -2,6 +2,7 @@ import Link from "next/link";
 import { refreshShipmentStatusAction, retryShipmentAction } from "@/app/admin/actions";
 import { expireStalePendingOrders, getAllOrders } from "@/lib/orders";
 import { isConfigured as shipmentConfigured } from "@/lib/shipping-innofulfill";
+import { prettyStatus } from "@/lib/product-utils";
 import { formatPrice } from "@/lib/format";
 
 interface OrderLine {
@@ -127,7 +128,7 @@ export default async function AdminOrdersPage({
                         {o.awbNumber ? (
                           <>
                             <p className="font-mono text-ink">AWB {o.awbNumber}</p>
-                            <p className="text-faint">{o.shipmentStatus ?? "booked"}</p>
+                            <p className="text-faint">{prettyStatus(o.shipmentStatus)}</p>
                             <form action={refreshShipmentStatusAction} className="mt-1">
                               <input type="hidden" name="id" value={o.id} />
                               <button className="text-[10px] text-muted underline underline-offset-2 hover:text-ink">

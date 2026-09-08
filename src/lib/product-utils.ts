@@ -16,3 +16,13 @@ export function isOneSize(product: Product): boolean {
 export function sizeLabel(size: Size): string {
   return size === ONE_SIZE ? "One Size" : size;
 }
+
+/** Pretty-print a shipment status ("OUT_FOR_DELIVERY" -> "Out For Delivery"). */
+export function prettyStatus(s?: string | null): string {
+  if (!s) return "Booked";
+  return s
+    .replace(/[_-]+/g, " ")
+    .trim()
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}

@@ -316,19 +316,31 @@ export function webhookConfigured(): boolean {
   return Boolean(WEBHOOK_SECRET);
 }
 
-/** Updates an order's delivery status from a verified webhook payload. */
+/**
+ * Updates an order's delivery status from a verified webhook payload. Webhook
+ * events can arrive out of order, so rather than trust the event's own status
+ * we re-pull the authoritative current status from the tracking API; only if
+ * that's unavailable do we fall back to the event's status.
+ */
 export async function applyWebhookStatus(data: {
   awbNumber?: string;
   referenceId?: string;
   orderStatus?: string;
 }): Promise<void> {
-  const status = data.orderStatus;
-  if (!status) return;
-  const where = data.awbNumber
-    ? { awbNumber: data.awbNumber }
-    : data.referenceId
-      ? { razorpayOrderId: data.referenceId }
-      : null;
-  if (!where) return;
-  await prisma.order.updateMany({ where, data: { shipmentStatus: status } });
+  const order = await prisma.order.findFirst({
+    where: data.awbNumber
+      ? { awbNumber: data.awbNumber }
+      : data.referenceId
+        ? { razorpayOrderId: data.referenceId }
+        : { id: -1 },
+  });
+  if (!order) return;
+
+  const live = await syncShipmentStatus(order);
+  if (!live && data.orderStatus) {
+    await prisma.order.update({
+      where: { id: order.id },
+      data: { shipmentStatus: data.orderStatus },
+    });
+  }
 }
