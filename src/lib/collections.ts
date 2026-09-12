@@ -6,6 +6,7 @@ import {
   getSaleProducts,
 } from "./products";
 import { CATEGORIES, SUBCATEGORIES, subCategoriesFor } from "./taxonomy";
+import { collapseVariants } from "./product-utils";
 import type { Category, Product, SubCategory } from "./types";
 
 export interface CollectionDef {
@@ -21,21 +22,21 @@ export function getCollection(handle: string): CollectionDef | undefined {
       handle,
       title: "View All",
       subtitle: "Every piece, one place. The full Eclatique range.",
-      resolve: () => getAllProducts(),
+      resolve: async () => collapseVariants(await getAllProducts()),
     };
   if (handle === "new")
     return {
       handle,
       title: "New Arrivals",
       subtitle: "The newest drop of the season.",
-      resolve: () => getNewArrivals(100),
+      resolve: async () => collapseVariants(await getNewArrivals(200)),
     };
   if (handle === "sale")
     return {
       handle,
       title: "Sale",
       subtitle: "Marked-down, not marked-off.",
-      resolve: () => getSaleProducts(),
+      resolve: async () => collapseVariants(await getSaleProducts()),
     };
 
   // Whole category, e.g. "men" / "women"
@@ -45,7 +46,7 @@ export function getCollection(handle: string): CollectionDef | undefined {
       handle,
       title: cat.label,
       subtitle: `The ${cat.label}'s collection.`,
-      resolve: () => getProductsByCategory(cat.slug),
+      resolve: async () => collapseVariants(await getProductsByCategory(cat.slug)),
     };
 
   // Category + sub-category, e.g. "men-shirt" / "women-jackets"
@@ -59,8 +60,10 @@ export function getCollection(handle: string): CollectionDef | undefined {
       handle,
       title: `${catMatch.label}'s ${subMatch.label}`,
       subtitle: `${subMatch.label} from the ${catMatch.label.toLowerCase()}'s collection.`,
-      resolve: () =>
-        getProductsBySubCategory(catMatch.slug as Category, subMatch.slug as SubCategory),
+      resolve: async () =>
+        collapseVariants(
+          await getProductsBySubCategory(catMatch.slug as Category, subMatch.slug as SubCategory),
+        ),
     };
 
   return undefined;

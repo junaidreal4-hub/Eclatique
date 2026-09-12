@@ -5,6 +5,7 @@ import { ProductGallery } from "@/components/product-gallery";
 import { ProductDetailActions } from "@/components/product-detail-actions";
 import { ProductGrid } from "@/components/product-grid";
 import { discountPercent, formatPrice } from "@/lib/format";
+import { collapseVariants } from "@/lib/product-utils";
 import { variantLabelFor } from "@/lib/taxonomy";
 import {
   getAllProducts,
@@ -53,7 +54,11 @@ export default async function ProductPage({
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const related = await getRelatedProducts(product);
+  const related = collapseVariants(
+    (await getRelatedProducts(product, 12)).filter(
+      (r) => !product.variantGroup || r.variantGroup !== product.variantGroup,
+    ),
+  ).slice(0, 4);
   const variants = await getProductVariants(product);
   const discount = discountPercent(product.price, product.compareAtPrice);
 

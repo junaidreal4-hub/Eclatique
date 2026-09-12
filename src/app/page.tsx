@@ -4,12 +4,14 @@ import { HeroCarousel } from "@/components/hero-carousel";
 import { ProductGrid } from "@/components/product-grid";
 import { ReelsSection } from "@/components/reels-section";
 import { getNewArrivals } from "@/lib/products";
+import { collapseVariants } from "@/lib/product-utils";
 
 // Rendered on demand (reads the DB at request time, not at build).
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const newArrivals = await getNewArrivals(8);
+  // Fetch extra so collapsing variant groups still leaves a full row.
+  const newArrivals = collapseVariants(await getNewArrivals(24)).slice(0, 8);
 
   return (
     <>
