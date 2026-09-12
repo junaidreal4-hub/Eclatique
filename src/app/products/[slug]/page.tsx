@@ -5,6 +5,7 @@ import { ProductGallery } from "@/components/product-gallery";
 import { ProductDetailActions } from "@/components/product-detail-actions";
 import { ProductGrid } from "@/components/product-grid";
 import { discountPercent, formatPrice } from "@/lib/format";
+import { variantLabelFor } from "@/lib/taxonomy";
 import {
   getAllProducts,
   getProductBySlug,
@@ -116,7 +117,7 @@ export default async function ProductPage({
           {variants.length > 1 && (
             <div className="mt-6">
               <p className="label mb-3 text-[10px] text-faint">
-                Colour
+                {variantLabelFor(product.subCategory)}
                 {product.colorway && (
                   <span className="ml-2 normal-case tracking-normal text-ink">
                     {product.colorway}

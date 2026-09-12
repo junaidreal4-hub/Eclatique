@@ -5,14 +5,21 @@ export const SUBCATEGORIES: {
   label: string;
   /** If set, this sub-category only appears for these categories. */
   categories?: Category[];
+  /** Heading for the variant swatches on a product page (e.g. "Colour"). */
+  variantLabel: string;
 }[] = [
-  { slug: "shirt", label: "Shirt" },
-  { slug: "tshirt", label: "T-Shirt" },
-  { slug: "tops", label: "Tops", categories: ["women"] },
-  { slug: "bottomwear", label: "Bottomwear" },
-  { slug: "jackets", label: "Jackets" },
-  { slug: "accessories", label: "Accessories" },
+  { slug: "shirt", label: "Shirt", variantLabel: "Colour" },
+  { slug: "tshirt", label: "T-Shirt", variantLabel: "Colour" },
+  { slug: "tops", label: "Tops", categories: ["women"], variantLabel: "Colour" },
+  { slug: "bottomwear", label: "Bottomwear", variantLabel: "Colour" },
+  { slug: "jackets", label: "Jackets", variantLabel: "Colour" },
+  { slug: "accessories", label: "Accessories", variantLabel: "Style" },
 ];
+
+/** The variant-swatch heading suited to a sub-category ("Colour", "Style", …). */
+export function variantLabelFor(subCategory: string): string {
+  return SUBCATEGORIES.find((s) => s.slug === subCategory)?.variantLabel ?? "Options";
+}
 
 /** Sub-categories available for a given category (respects `categories` limits). */
 export function subCategoriesFor(category: Category) {
