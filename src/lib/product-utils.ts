@@ -13,16 +13,19 @@ export function isOneSize(product: Product): boolean {
 }
 
 /**
- * Collapses variant groups to a single representative card for listings: the
- * first product of each non-empty variantGroup is kept (order-preserving),
- * others are dropped. Ungrouped products are all kept. Used on storefront
- * grids so the group shows once; the product page still lists every variant.
+ * Collapses ACCESSORY variant groups to a single representative card for
+ * listings (e.g. charms sharing a variantGroup show one card → all options on
+ * the product page). Clothing colour groups are left as separate cards, so each
+ * colour still lists on its own while remaining linked as variants. Ungrouped
+ * products are always kept. The product page itself still lists every variant.
  */
-export function collapseVariants<T extends { variantGroup: string }>(items: T[]): T[] {
+export function collapseVariants<
+  T extends { variantGroup: string; subCategory: string },
+>(items: T[]): T[] {
   const seen = new Set<string>();
   const out: T[] = [];
   for (const p of items) {
-    if (p.variantGroup) {
+    if (p.variantGroup && p.subCategory === "accessories") {
       if (seen.has(p.variantGroup)) continue;
       seen.add(p.variantGroup);
     }
