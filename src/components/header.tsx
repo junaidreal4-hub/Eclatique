@@ -109,10 +109,25 @@ export function Header() {
 
           {/* Right: search + account + cart */}
           <div className="flex items-center justify-end gap-1 sm:gap-2">
+            {/* Desktop: always-visible search box */}
+            <form
+              action="/search"
+              onSubmit={submitSearch}
+              className="hidden items-center gap-2 border border-line px-3 py-1.5 transition-colors focus-within:border-ink md:flex"
+            >
+              <SearchIcon className="text-faint" />
+              <input
+                name="q"
+                placeholder="Search products"
+                aria-label="Search products"
+                className="w-32 bg-transparent text-sm outline-none placeholder:text-faint lg:w-44"
+              />
+            </form>
+            {/* Mobile: tap to open search */}
             <button
               type="button"
               onClick={() => setSearchOpen((v) => !v)}
-              className="p-2 text-ink/70 transition-colors hover:text-ink"
+              className="p-2 text-ink/70 transition-colors hover:text-ink md:hidden"
               aria-label="Search"
               aria-expanded={searchOpen}
             >
@@ -141,9 +156,9 @@ export function Header() {
           </div>
         </div>
 
-        {/* Slide-down search bar */}
+        {/* Slide-down search bar (mobile — desktop has the inline box) */}
         {searchOpen && (
-          <div className="border-t border-line bg-paper">
+          <div className="border-t border-line bg-paper md:hidden">
             <form
               action="/search"
               onSubmit={submitSearch}
@@ -297,9 +312,9 @@ function UserIcon() {
     </svg>
   );
 }
-function SearchIcon() {
+function SearchIcon({ className = "" }: { className?: string }) {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className={className}>
       <circle cx="11" cy="11" r="7" />
       <path d="M21 21l-4.3-4.3" strokeLinecap="round" />
     </svg>
