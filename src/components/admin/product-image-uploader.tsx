@@ -59,20 +59,22 @@ export function ProductImageUploader({
                   Main
                 </span>
               )}
-              <div className="absolute inset-x-0 bottom-0 flex justify-between gap-1 bg-ink/60 p-1 opacity-0 transition-opacity group-hover:opacity-100">
-                {i !== 0 && (
+              <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-1 bg-ink/70 px-1.5 py-1">
+                {i !== 0 ? (
                   <button
                     type="button"
                     onClick={() => makeMain(url)}
-                    className="text-[9px] font-medium text-paper hover:underline"
+                    className="text-[9px] font-semibold uppercase tracking-wide text-paper hover:underline"
                   >
                     Make main
                   </button>
+                ) : (
+                  <span />
                 )}
                 <button
                   type="button"
                   onClick={() => remove(url)}
-                  className="ml-auto text-[9px] font-medium text-paper hover:underline"
+                  className="text-[9px] font-semibold uppercase tracking-wide text-paper hover:underline"
                 >
                   Remove
                 </button>

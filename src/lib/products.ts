@@ -91,6 +91,24 @@ export async function getProductsBySubCategory(
   return rows.map(toProduct);
 }
 
+export async function searchProducts(query: string): Promise<Product[]> {
+  const q = query.trim();
+  if (!q) return [];
+  const rows = await prisma.product.findMany({
+    where: {
+      OR: [
+        { name: { contains: q, mode: "insensitive" } },
+        { colorway: { contains: q, mode: "insensitive" } },
+        { description: { contains: q, mode: "insensitive" } },
+        { category: { contains: q, mode: "insensitive" } },
+        { subCategory: { contains: q, mode: "insensitive" } },
+      ],
+    },
+    orderBy: { createdAt: "desc" },
+  });
+  return rows.map(toProduct);
+}
+
 export async function getNewArrivals(limit = 8): Promise<Product[]> {
   const rows = await prisma.product.findMany({
     where: { isNew: true },

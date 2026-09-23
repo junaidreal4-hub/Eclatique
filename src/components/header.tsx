@@ -10,6 +10,7 @@ export function Header() {
   const { count, openCart, ready } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
@@ -97,8 +98,17 @@ export function Header() {
             />
           </Link>
 
-          {/* Right: account + cart */}
+          {/* Right: search + account + cart */}
           <div className="flex items-center justify-end gap-1 sm:gap-2">
+            <button
+              type="button"
+              onClick={() => setSearchOpen((v) => !v)}
+              className="p-2 text-ink/70 transition-colors hover:text-ink"
+              aria-label="Search"
+              aria-expanded={searchOpen}
+            >
+              <SearchIcon />
+            </button>
             <Link
               href="/account"
               className="hidden p-2 text-ink/70 transition-colors hover:text-ink sm:block"
@@ -121,6 +131,36 @@ export function Header() {
             </button>
           </div>
         </div>
+
+        {/* Slide-down search bar */}
+        {searchOpen && (
+          <div className="border-t border-line bg-paper">
+            <form
+              action="/search"
+              onSubmit={() => setSearchOpen(false)}
+              className="mx-auto flex max-w-[1400px] items-center gap-3 px-4 py-3 sm:px-6"
+            >
+              <SearchIcon />
+              <input
+                name="q"
+                autoFocus
+                placeholder="Search for shirts, tops, charms…"
+                className="flex-1 bg-transparent text-sm outline-none placeholder:text-faint"
+              />
+              <button type="submit" className="label text-[11px] text-muted transition-colors hover:text-ink">
+                Search
+              </button>
+              <button
+                type="button"
+                onClick={() => setSearchOpen(false)}
+                className="p-1 text-ink/60 transition-colors hover:text-ink"
+                aria-label="Close search"
+              >
+                <CloseIcon />
+              </button>
+            </form>
+          </div>
+        )}
       </header>
 
       {/* Mobile slide-in menu — outside <header> so its backdrop-blur doesn't
@@ -245,6 +285,14 @@ function UserIcon() {
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
       <circle cx="12" cy="8" r="3.2" />
       <path d="M5 20c0-3.6 3.1-5.5 7-5.5s7 1.9 7 5.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+function SearchIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+      <circle cx="11" cy="11" r="7" />
+      <path d="M21 21l-4.3-4.3" strokeLinecap="round" />
     </svg>
   );
 }
