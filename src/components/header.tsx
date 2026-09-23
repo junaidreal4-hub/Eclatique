@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { NAV_GROUPS, NAV_LEADING, NAV_TRAILING } from "@/lib/nav";
 import { useCart } from "./cart-context";
@@ -11,6 +12,14 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  const router = useRouter();
+
+  function submitSearch(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const query = String(new FormData(e.currentTarget).get("q") ?? "").trim();
+    setSearchOpen(false);
+    if (query) router.push(`/search?q=${encodeURIComponent(query)}`);
+  }
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
@@ -137,7 +146,7 @@ export function Header() {
           <div className="border-t border-line bg-paper">
             <form
               action="/search"
-              onSubmit={() => setSearchOpen(false)}
+              onSubmit={submitSearch}
               className="mx-auto flex max-w-[1400px] items-center gap-3 px-4 py-3 sm:px-6"
             >
               <SearchIcon />

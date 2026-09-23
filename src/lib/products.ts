@@ -92,17 +92,21 @@ export async function getProductsBySubCategory(
 }
 
 export async function searchProducts(query: string): Promise<Product[]> {
-  const q = query.trim();
-  if (!q) return [];
+  // Match ALL words (AND), each word matching any field — so "yellow shirt"
+  // finds "Butter Yellow ... Shirt".
+  const terms = query.trim().split(/\s+/).filter(Boolean);
+  if (terms.length === 0) return [];
   const rows = await prisma.product.findMany({
     where: {
-      OR: [
-        { name: { contains: q, mode: "insensitive" } },
-        { colorway: { contains: q, mode: "insensitive" } },
-        { description: { contains: q, mode: "insensitive" } },
-        { category: { contains: q, mode: "insensitive" } },
-        { subCategory: { contains: q, mode: "insensitive" } },
-      ],
+      AND: terms.map((t) => ({
+        OR: [
+          { name: { contains: t, mode: "insensitive" as const } },
+          { colorway: { contains: t, mode: "insensitive" as const } },
+          { description: { contains: t, mode: "insensitive" as const } },
+          { category: { contains: t, mode: "insensitive" as const } },
+          { subCategory: { contains: t, mode: "insensitive" as const } },
+        ],
+      })),
     },
     orderBy: { createdAt: "desc" },
   });
