@@ -38,6 +38,19 @@ model Reel {
   createdAt DateTime @default(now())
 }
 
+model PageView {
+  id          Int      @id @default(autoincrement())
+  path        String
+  source      String   @default("Direct") // referrer bucket: Instagram, Google, Direct, ...
+  visitorHash String // daily-rotating hash of IP+UA (no raw IP stored)
+  country     String? // filled once geo is enabled (Step 2)
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([path])
+  @@index([source])
+}
+
 model Order {
   id                Int      @id @default(autoincrement())
   razorpayOrderId   String   @unique

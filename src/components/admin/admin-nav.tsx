@@ -49,6 +49,16 @@ const items = [
       </>
     ),
   },
+  {
+    href: "/admin/analytics",
+    label: "Analytics",
+    icon: (
+      <>
+        <path d="M3 3v18h18" />
+        <path d="M7 15l4-5 3 3 5-7" />
+      </>
+    ),
+  },
 ];
 
 export function AdminNav() {
