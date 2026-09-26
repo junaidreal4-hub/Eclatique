@@ -17,6 +17,7 @@ export default async function AdminAnalyticsPage({
   const maxDay = Math.max(1, ...a.daily.map((d) => d.views));
   const maxPage = Math.max(1, ...a.topPages.map((p) => p.views));
   const maxSource = Math.max(1, ...a.topSources.map((s) => s.views));
+  const maxState = Math.max(1, ...a.topStates.map((s) => s.views));
   const fmtDate = (d: string) =>
     new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
 
@@ -109,11 +110,22 @@ export default async function AdminAnalyticsPage({
             ))
           )}
         </Panel>
+        <Panel title="Top States">
+          {a.topStates.length === 0 ? (
+            <p className="py-6 text-center text-sm text-muted">
+              State data appears as visits come in.
+            </p>
+          ) : (
+            a.topStates.map((s) => (
+              <Row key={s.state} label={s.state} value={s.views} pct={(s.views / maxState) * 100} />
+            ))
+          )}
+        </Panel>
       </div>
 
       <p className="mt-6 text-[11px] text-faint">
-        Cookieless first-party analytics — no consent banner needed. Country
-        breakdown is added once geo is enabled.
+        Cookieless first-party analytics — no consent banner needed. State is
+        resolved from the visitor&apos;s IP (approximate); some visits show no state.
       </p>
     </div>
   );

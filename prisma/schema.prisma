@@ -43,7 +43,8 @@ model PageView {
   path        String
   source      String   @default("Direct") // referrer bucket: Instagram, Google, Direct, ...
   visitorHash String // daily-rotating hash of IP+UA (no raw IP stored)
-  country     String? // filled once geo is enabled (Step 2)
+  region      String? // state / region resolved from IP (e.g. "Maharashtra")
+  country     String? // ISO country code (e.g. "IN")
   createdAt   DateTime @default(now())
 
   @@index([createdAt])

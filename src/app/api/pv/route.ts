@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import {
   deriveSource,
   isBot,
+  lookupRegion,
   recordPageView,
   visitorHashFor,
 } from "@/lib/analytics";
@@ -24,10 +25,13 @@ export async function POST(req: Request) {
       req.headers.get("x-real-ip") ||
       "0.0.0.0";
 
+    const geo = await lookupRegion(ip);
     await recordPageView({
       path,
       source: deriveSource(String(referrer ?? ""), req.headers.get("host")),
       visitorHash: visitorHashFor(ip, ua),
+      region: geo.region,
+      country: geo.country,
     });
   } catch {
     /* ignore malformed beacons */

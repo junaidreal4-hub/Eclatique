@@ -59,16 +59,65 @@ export function visitorHashFor(ip: string, ua: string): string {
     .slice(0, 32);
 }
 
+// IP -> state lookup via a free, no-key geo service, cached for the process
+// lifetime so repeat visitors don't re-query. Fails soft (null) on any error.
+const regionCache = new Map<string, { region: string | null; country: string | null }>();
+
+function isPrivateIp(ip: string): boolean {
+  return (
+    !ip ||
+    ip === "0.0.0.0" ||
+    ip.startsWith("127.") ||
+    ip.startsWith("10.") ||
+    ip.startsWith("192.168.") ||
+    ip.startsWith("::1") ||
+    ip.startsWith("172.16.")
+  );
+}
+
+export async function lookupRegion(
+  ip: string,
+): Promise<{ region: string | null; country: string | null }> {
+  if (isPrivateIp(ip)) return { region: null, country: null };
+  const cached = regionCache.get(ip);
+  if (cached) return cached;
+
+  let result = { region: null as string | null, country: null as string | null };
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 1500);
+    const res = await fetch(`https://ipwho.is/${encodeURIComponent(ip)}`, {
+      signal: ctrl.signal,
+    });
+    clearTimeout(timer);
+    const d = await res.json();
+    if (d?.success) {
+      result = {
+        region: d.region ? String(d.region) : null,
+        country: d.country_code ? String(d.country_code) : null,
+      };
+    }
+  } catch {
+    /* geo service unavailable — leave null */
+  }
+  if (regionCache.size < 10000) regionCache.set(ip, result);
+  return result;
+}
+
 export async function recordPageView(data: {
   path: string;
   source: string;
   visitorHash: string;
+  region?: string | null;
+  country?: string | null;
 }): Promise<void> {
   await prisma.pageView.create({
     data: {
       path: data.path.slice(0, 512),
       source: data.source.slice(0, 120),
       visitorHash: data.visitorHash,
+      region: data.region ?? null,
+      country: data.country ?? null,
     },
   });
 }
@@ -80,12 +129,13 @@ export interface AnalyticsSummary {
   daily: { date: string; views: number }[];
   topPages: { path: string; views: number }[];
   topSources: { source: string; views: number }[];
+  topStates: { state: string; views: number }[];
 }
 
 export async function getAnalyticsSummary(days = 30): Promise<AnalyticsSummary> {
   const gte = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
-  const [totalViews, uniqRows, dailyRows, pages, sources] = await Promise.all([
+  const [totalViews, uniqRows, dailyRows, pages, sources, states] = await Promise.all([
     prisma.pageView.count({ where: { createdAt: { gte } } }),
     prisma.$queryRaw<{ count: number }[]>`
       SELECT count(DISTINCT "visitorHash")::int AS count
@@ -108,6 +158,13 @@ export async function getAnalyticsSummary(days = 30): Promise<AnalyticsSummary> 
       orderBy: { _count: { source: "desc" } },
       take: 8,
     }),
+    prisma.pageView.groupBy({
+      by: ["region"],
+      where: { createdAt: { gte }, region: { not: null } },
+      _count: { region: true },
+      orderBy: { _count: { region: "desc" } },
+      take: 10,
+    }),
   ]);
 
   // Fill missing days with 0 so the chart is continuous.
@@ -127,5 +184,6 @@ export async function getAnalyticsSummary(days = 30): Promise<AnalyticsSummary> 
     daily,
     topPages: pages.map((p) => ({ path: p.path, views: p._count.path })),
     topSources: sources.map((s) => ({ source: s.source, views: s._count.source })),
+    topStates: states.map((s) => ({ state: s.region ?? "Unknown", views: s._count.region })),
   };
 }
