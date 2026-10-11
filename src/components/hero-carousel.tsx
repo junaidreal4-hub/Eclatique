@@ -4,9 +4,10 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 const SLIDES = [
-  "/hero/hero-look-1.jpeg",
-  "/hero/hero-look-2.jpeg",
-  "/hero/hero-look-3.jpeg",
+  "/hero/first_hero.webp",
+  "/hero/second_hero.webp",
+  "/hero/third_hero.webp",
+  "/hero/fourth_hero.webp",
 ];
 
 export function HeroCarousel() {

@@ -60,13 +60,13 @@ export default async function HomePage() {
       <section className="mx-auto mt-16 grid max-w-[1400px] grid-cols-1 gap-4 px-4 sm:grid-cols-2 sm:px-6">
         <CategoryTile
           href="/collections/men"
-          image="/products/blue-zip-shirt-1.webp"
+          image="/category/shop-men.webp"
           eyebrow="Menswear"
           title="Shop Men"
         />
         <CategoryTile
           href="/collections/women"
-          image="/products/blue-laceup-top-1.webp"
+          image="/category/shop-women.webp"
           eyebrow="Womenswear"
           title="Shop Women"
         />
@@ -96,7 +96,7 @@ function CategoryTile({
         alt={title}
         fill
         sizes="(max-width: 640px) 100vw, 50vw"
-        className="object-cover transition-transform duration-700 group-hover:scale-105"
+        className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
       />
       <div className="absolute inset-0 bg-ink/20 transition-colors group-hover:bg-ink/30" />
       <div className="absolute bottom-0 left-0 p-8 text-paper">
