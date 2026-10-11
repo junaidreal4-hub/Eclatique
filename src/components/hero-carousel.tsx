@@ -24,32 +24,18 @@ export function HeroCarousel() {
   return (
     <>
       {SLIDES.map((src, i) => (
-        <div
+        <Image
           key={src}
-          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+          src={src}
+          alt="Eclatique collection"
+          fill
+          priority={i === 0}
+          quality={90}
+          sizes="100vw"
+          className={`object-cover object-[50%_30%] transition-opacity duration-1000 ease-in-out ${
             i === index ? "opacity-100" : "opacity-0"
           }`}
-        >
-          {/* Desktop: blurred fill so the full photo can sit uncropped on top */}
-          <Image
-            src={src}
-            alt=""
-            aria-hidden
-            fill
-            sizes="100vw"
-            className="hidden scale-110 object-cover blur-2xl brightness-75 md:block"
-          />
-          {/* Main photo — fills on mobile, shows the full frame on desktop */}
-          <Image
-            src={src}
-            alt="Eclatique collection"
-            fill
-            priority={i === 0}
-            quality={90}
-            sizes="100vw"
-            className="object-cover object-[50%_35%] md:object-contain"
-          />
-        </div>
+        />
       ))}
 
       {/* Slide indicators */}
