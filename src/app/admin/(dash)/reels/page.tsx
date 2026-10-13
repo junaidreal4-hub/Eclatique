@@ -4,6 +4,7 @@ import {
   deleteReelAction,
   updateReelOrderAction,
 } from "@/app/admin/actions";
+import { ReelUpload } from "@/components/admin/reel-upload";
 
 export default async function AdminReelsPage() {
   const reels = await getReels();
@@ -16,32 +17,38 @@ export default async function AdminReelsPage() {
         The videos in the &ldquo;Eclatique in Motion&rdquo; section on the homepage.
       </p>
 
-      <form
-        action={addReelAction}
-        className="mt-6 flex flex-col gap-3 border border-line bg-paper p-5 sm:flex-row sm:items-end"
-      >
-        <div className="flex-1">
-          <label className="label mb-2 block text-[10px] text-faint">
-            Cloudinary Video URL
-          </label>
-          <input
-            name="videoUrl"
-            required
-            placeholder="https://res.cloudinary.com/.../reel.mp4"
-            className="w-full border border-line bg-transparent px-3 py-2 text-sm outline-none focus:border-ink"
-          />
+      <div className="mt-6 border border-line bg-paper p-5">
+        <label className="label mb-2 block text-[10px] text-faint">Upload a video</label>
+        <ReelUpload />
+        <p className="mt-3 text-xs text-faint">
+          Vertical (9:16) MP4 works best. Uploaded straight to the site — no Cloudinary
+          needed. Max 80 MB; compress long clips first.
+        </p>
+
+        <div className="my-5 flex items-center gap-3 text-[10px] text-faint">
+          <span className="h-px flex-1 bg-line" />
+          OR ADD BY URL
+          <span className="h-px flex-1 bg-line" />
         </div>
-        <button
-          type="submit"
-          className="label bg-accent px-6 py-2.5 text-[11px] text-paper hover:opacity-90"
-        >
-          Add Reel
-        </button>
-      </form>
-      <p className="mt-2 text-xs text-faint">
-        Upload the video to Cloudinary, then paste its direct link here. Videos should be
-        vertical (9:16) MP4.
-      </p>
+
+        <form action={addReelAction} className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <div className="flex-1">
+            <label className="label mb-2 block text-[10px] text-faint">Video URL</label>
+            <input
+              name="videoUrl"
+              required
+              placeholder="https://.../reel.mp4"
+              className="w-full border border-line bg-transparent px-3 py-2 text-sm outline-none focus:border-ink"
+            />
+          </div>
+          <button
+            type="submit"
+            className="label border border-ink px-6 py-2.5 text-[11px] hover:bg-ink hover:text-paper"
+          >
+            Add by URL
+          </button>
+        </form>
+      </div>
 
       {reels.length === 0 ? (
         <p className="mt-10 text-center text-sm text-muted">No reels yet.</p>
