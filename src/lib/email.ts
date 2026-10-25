@@ -126,3 +126,77 @@ export async function sendOrderConfirmation(order: OrderRow): Promise<void> {
     );
   }
 }
+
+// ---- Account emails --------------------------------------------------------
+
+function renderActionEmail(
+  heading: string,
+  body: string,
+  buttonLabel: string,
+  url: string,
+  footer: string,
+): string {
+  return `<!doctype html><html><body style="font-family:Helvetica,Arial,sans-serif;color:#0a0a0a;background:#f5f5f4;margin:0;padding:24px">
+    <div style="max-width:520px;margin:0 auto;background:#fff;border:1px solid #eee">
+      <div style="background:#3e2723;color:#fff;padding:26px;text-align:center;letter-spacing:3px;font-weight:800">ECLATIQUE</div>
+      <div style="padding:28px">
+        <h1 style="font-size:19px;margin:0 0 10px">${esc(heading)}</h1>
+        <p style="color:#555;font-size:14px;line-height:1.6">${esc(body)}</p>
+        <p style="margin:22px 0"><a href="${url}" style="display:inline-block;background:#3e2723;color:#fff;text-decoration:none;padding:12px 24px;font-size:13px;letter-spacing:1px">${esc(buttonLabel)}</a></p>
+        <p style="color:#999;font-size:12px;line-height:1.6">${esc(footer)}<br>If the button doesn't work, copy this link into your browser:<br><span style="color:#3e2723;word-break:break-all">${url}</span></p>
+      </div>
+      <div style="background:#f8f8f8;text-align:center;padding:16px;font-size:12px;color:#999">&copy; ${new Date().getFullYear()} Eclatique Clothing</div>
+    </div></body></html>`;
+}
+
+export async function sendVerificationEmail(
+  to: string,
+  name: string,
+  url: string,
+): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.log("[email] RESEND_API_KEY not set — verification link:", url);
+    return;
+  }
+  const from = process.env.ORDER_FROM_EMAIL || "Eclatique <onboarding@resend.dev>";
+  await sendEmail(
+    apiKey,
+    from,
+    to,
+    "Verify your Eclatique account",
+    renderActionEmail(
+      `Welcome${name ? `, ${name}` : ""}!`,
+      "Confirm your email address to activate your Eclatique account.",
+      "Verify my email",
+      url,
+      "This link expires in 24 hours.",
+    ),
+  );
+}
+
+export async function sendPasswordResetEmail(
+  to: string,
+  name: string,
+  url: string,
+): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.log("[email] RESEND_API_KEY not set — reset link:", url);
+    return;
+  }
+  const from = process.env.ORDER_FROM_EMAIL || "Eclatique <onboarding@resend.dev>";
+  await sendEmail(
+    apiKey,
+    from,
+    to,
+    "Reset your Eclatique password",
+    renderActionEmail(
+      "Reset your password",
+      "We received a request to reset your password. If this was you, click below to choose a new one.",
+      "Reset password",
+      url,
+      "This link expires in 1 hour. If you didn't request this, you can ignore this email.",
+    ),
+  );
+}

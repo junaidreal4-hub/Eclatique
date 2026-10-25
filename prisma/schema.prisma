@@ -38,6 +38,20 @@ model Reel {
   createdAt DateTime @default(now())
 }
 
+model User {
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  name          String    @default("")
+  passwordHash  String? // null for future OAuth-only accounts
+  emailVerified DateTime? // null = not yet verified
+  verifyToken   String? // sha256 of the emailed verification token
+  verifyExpires DateTime?
+  resetToken    String? // sha256 of the emailed password-reset token
+  resetExpires  DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
 model PageView {
   id          Int      @id @default(autoincrement())
   path        String
