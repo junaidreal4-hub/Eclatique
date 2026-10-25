@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { registerAction } from "@/app/account/actions";
 import { getCurrentUser } from "@/lib/auth-user";
+import { GoogleButton } from "@/components/account/google-button";
 
 export const metadata: Metadata = { title: "Create Account" };
 
@@ -34,6 +35,8 @@ export default async function RegisterPage({
           Enter your name, a valid email, and a password of at least 8 characters.
         </p>
       ) : null}
+
+      <GoogleButton />
 
       <form action={registerAction} className="mt-8 space-y-5">
         <label className="block">

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { loginAction, resendVerificationAction } from "@/app/account/actions";
 import { getCurrentUser } from "@/lib/auth-user";
+import { GoogleButton } from "@/components/account/google-button";
 
 export const metadata: Metadata = { title: "Log In" };
 
@@ -31,6 +32,7 @@ export default async function LoginPage({
       {verify === "invalid" && (
         <Notice>That verification link is invalid or has expired. Log in to resend one.</Notice>
       )}
+      {error === "google" && <Notice>Google sign-in failed. Please try again.</Notice>}
       {error === "unverified" ? (
         <div className="mt-6 border border-line bg-subtle p-4 text-xs">
           <p className="font-medium text-ink">Please verify your email first.</p>
@@ -41,9 +43,11 @@ export default async function LoginPage({
             </button>
           </form>
         </div>
-      ) : error ? (
+      ) : error && error !== "google" ? (
         <Notice>Incorrect email or password.</Notice>
       ) : null}
+
+      <GoogleButton />
 
       <form action={loginAction} className="mt-8 space-y-5">
         <label className="block">

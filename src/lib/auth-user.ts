@@ -9,8 +9,9 @@ import { prisma } from "./db";
   signed, expiring cookie carrying the user id (stateless, no session table).
 */
 
-const COOKIE = "eclatique_user";
+export const SESSION_COOKIE = "eclatique_user";
 const MAX_AGE = 60 * 60 * 24 * 30; // 30 days
+export const SESSION_MAX_AGE = MAX_AGE;
 
 function secret(): string {
   return (
@@ -68,7 +69,7 @@ export async function startUserSession(userId: number): Promise<void> {
   const token = `${payload}.${sign(payload)}`;
   const proto = (await headers()).get("x-forwarded-proto")?.split(",")[0].trim();
   const jar = await cookies();
-  jar.set(COOKIE, token, {
+  jar.set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
     secure: proto === "https",
@@ -78,11 +79,36 @@ export async function startUserSession(userId: number): Promise<void> {
 }
 
 export async function endUserSession(): Promise<void> {
-  (await cookies()).delete(COOKIE);
+  (await cookies()).delete(SESSION_COOKIE);
+}
+
+/** Builds a signed session token (for setting on a NextResponse, e.g. OAuth). */
+export function buildSessionToken(userId: number): string {
+  const exp = Math.floor(Date.now() / 1000) + MAX_AGE;
+  const payload = `${userId}.${exp}`;
+  return `${payload}.${sign(payload)}`;
+}
+
+/** Finds or creates a user from a verified Google profile, returns the user. */
+export async function findOrCreateGoogleUser(email: string, name: string) {
+  const lower = email.trim().toLowerCase();
+  const existing = await prisma.user.findUnique({ where: { email: lower } });
+  if (existing) {
+    if (!existing.emailVerified) {
+      await prisma.user.update({
+        where: { id: existing.id },
+        data: { emailVerified: new Date() },
+      });
+    }
+    return existing;
+  }
+  return prisma.user.create({
+    data: { email: lower, name: name || "", emailVerified: new Date() },
+  });
 }
 
 async function sessionUserId(): Promise<number | null> {
-  const token = (await cookies()).get(COOKIE)?.value;
+  const token = (await cookies()).get(SESSION_COOKIE)?.value;
   if (!token) return null;
   const [uid, expStr, sig] = token.split(".");
   if (!uid || !expStr || !sig) return null;
