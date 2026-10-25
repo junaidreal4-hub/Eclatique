@@ -200,3 +200,72 @@ export async function sendPasswordResetEmail(
     ),
   );
 }
+
+/** Alerts the store owner that a customer requested a return or exchange. */
+export async function sendReturnRequestAlert(data: {
+  type: "RETURN" | "EXCHANGE";
+  razorpayOrderId: string;
+  customerName: string;
+  email: string;
+  reason: string;
+  items: { name: string; size: string; quantity: number; exchangeSize?: string }[];
+}): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const notify = process.env.ORDER_NOTIFY_EMAIL;
+  if (!apiKey || !notify) return;
+  const from = process.env.ORDER_FROM_EMAIL || "Eclatique <onboarding@resend.dev>";
+
+  const rows = data.items
+    .map(
+      (i) =>
+        `<li>${esc(i.name)} (${esc(i.size)}) ×${Number(i.quantity)}${
+          i.exchangeSize ? ` → exchange to <strong>${esc(i.exchangeSize)}</strong>` : ""
+        }</li>`,
+    )
+    .join("");
+
+  const html = `<!doctype html><html><body style="font-family:Helvetica,Arial,sans-serif;color:#0a0a0a;padding:24px">
+    <h2 style="margin:0 0 10px">New ${data.type === "EXCHANGE" ? "exchange" : "return"} request</h2>
+    <p style="font-size:13px;color:#555">Order <strong>${esc(data.razorpayOrderId)}</strong> · ${esc(data.customerName)} · ${esc(data.email)}</p>
+    <ul style="font-size:14px">${rows}</ul>
+    ${data.reason ? `<p style="font-size:13px"><strong>Reason:</strong> ${esc(data.reason)}</p>` : ""}
+    <p style="font-size:12px;color:#999">Manage it in Admin → Returns.</p>
+  </body></html>`;
+
+  await sendEmail(apiKey, from, notify, `New ${data.type.toLowerCase()} request — ${data.razorpayOrderId}`, html);
+}
+
+/** Tells the customer their return/exchange request changed status. */
+export async function sendReturnStatusEmail(
+  to: string,
+  type: "RETURN" | "EXCHANGE",
+  status: string,
+  razorpayOrderId: string,
+): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return;
+  const from = process.env.ORDER_FROM_EMAIL || "Eclatique <onboarding@resend.dev>";
+  const word = type === "EXCHANGE" ? "exchange" : "return";
+  const copy: Record<string, string> = {
+    approved:
+      type === "EXCHANGE"
+        ? "Your exchange is approved — we'll arrange a pickup and send the new size shortly."
+        : "Your return is approved. Please ship the item back; your refund is issued once we receive it.",
+    rejected: `After review, we're unable to approve this ${word} request. Reply to this email if you have questions.`,
+    completed:
+      type === "EXCHANGE"
+        ? "Your exchange is complete — the replacement is on its way."
+        : "Your return is complete and your refund has been processed.",
+  };
+  const body = copy[status] ?? `Your ${word} request is now: ${status}.`;
+  const html = `<!doctype html><html><body style="font-family:Helvetica,Arial,sans-serif;color:#0a0a0a;background:#f5f5f4;margin:0;padding:24px">
+    <div style="max-width:520px;margin:0 auto;background:#fff;border:1px solid #eee">
+      <div style="background:#3e2723;color:#fff;padding:26px;text-align:center;letter-spacing:3px;font-weight:800">ECLATIQUE</div>
+      <div style="padding:28px">
+        <h1 style="font-size:19px;margin:0 0 10px;text-transform:capitalize">${word} ${esc(status)}</h1>
+        <p style="color:#555;font-size:14px;line-height:1.6">${esc(body)}</p>
+        <p style="color:#999;font-size:12px">Order: ${esc(razorpayOrderId)}</p>
+      </div>
+    </div></body></html>`;
+  await sendEmail(apiKey, from, to, `Your ${word} request — ${status}`, html);
+}

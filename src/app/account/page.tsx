@@ -27,12 +27,16 @@ export default async function AccountPage() {
       </div>
 
       <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Panel title="Saved Addresses" note="Add and manage delivery addresses.">
-          <span className="text-xs text-faint">Coming soon</span>
-        </Panel>
-        <Panel title="Order History" note="Track and review your orders.">
-          <span className="text-xs text-faint">Coming soon</span>
-        </Panel>
+        <Panel
+          href="/account/orders"
+          title="Order History"
+          note="Track orders, and start a return or exchange."
+        />
+        <Panel
+          href="/account/addresses"
+          title="Saved Addresses"
+          note="Add and manage your delivery addresses."
+        />
       </div>
 
       <Link
@@ -45,20 +49,17 @@ export default async function AccountPage() {
   );
 }
 
-function Panel({
-  title,
-  note,
-  children,
-}: {
-  title: string;
-  note: string;
-  children: React.ReactNode;
-}) {
+function Panel({ href, title, note }: { href: string; title: string; note: string }) {
   return (
-    <div className="border border-line bg-paper p-6">
+    <Link
+      href={href}
+      className="group block border border-line bg-paper p-6 transition-colors hover:border-ink"
+    >
       <h2 className="text-sm font-bold">{title}</h2>
       <p className="mt-1 text-xs text-muted">{note}</p>
-      <div className="mt-4">{children}</div>
-    </div>
+      <span className="label mt-4 inline-block border-b border-line pb-px text-[10px] text-muted group-hover:border-ink group-hover:text-ink">
+        Open →
+      </span>
+    </Link>
   );
 }

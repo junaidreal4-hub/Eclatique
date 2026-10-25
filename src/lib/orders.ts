@@ -88,11 +88,13 @@ export async function createPendingOrder(
   amountPaise: number,
   lines: OrderLine[],
   customer: CustomerDetails,
+  userId?: number | null,
 ) {
   return prisma.order.create({
     data: {
       razorpayOrderId,
       amount: amountPaise,
+      userId: userId ?? null,
       email: customer.email,
       customerName: customer.customerName,
       phone: customer.phone,
@@ -102,6 +104,21 @@ export async function createPendingOrder(
       postalCode: customer.postalCode,
       items: JSON.stringify(lines),
     },
+  });
+}
+
+/** A logged-in customer's paid orders — by account id OR matching email (past guest orders). */
+export async function getOrdersForUser(userId: number, email: string) {
+  return prisma.order.findMany({
+    where: { status: "paid", OR: [{ userId }, { email }] },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+/** One of the customer's orders (ownership checked by id OR email). */
+export async function getOrderForUser(id: number, userId: number, email: string) {
+  return prisma.order.findFirst({
+    where: { id, status: "paid", OR: [{ userId }, { email }] },
   });
 }
 

@@ -17,6 +17,8 @@ import {
 } from "@/lib/products";
 import { getOrderById } from "@/lib/orders";
 import { createShipmentForOrder, syncShipmentStatus } from "@/lib/shipping-innofulfill";
+import { updateReturnStatus } from "@/lib/returns";
+import { sendReturnStatusEmail } from "@/lib/email";
 import { addReel, deleteReel, updateReelOrder } from "@/lib/reels";
 import { ALL_SIZES } from "@/lib/taxonomy";
 import type { Category, Size, SubCategory } from "@/lib/types";
@@ -174,6 +176,26 @@ export async function refreshShipmentStatusAction(formData: FormData) {
     }
   }
   redirect("/admin/orders");
+}
+
+// ---- Returns & Exchanges ---------------------------------------------------
+
+export async function updateReturnStatusAction(formData: FormData) {
+  if (!(await isAuthenticated())) redirect("/admin/login");
+  const id = Number(formData.get("id"));
+  const status = String(formData.get("status") ?? "").trim();
+  const adminNote = String(formData.get("adminNote") ?? "").trim();
+  if (id && status) {
+    const updated = await updateReturnStatus(id, status, adminNote);
+    await sendReturnStatusEmail(
+      updated.email,
+      updated.type === "EXCHANGE" ? "EXCHANGE" : "RETURN",
+      status,
+      updated.razorpayOrderId,
+    );
+    revalidatePath("/admin/returns");
+  }
+  redirect("/admin/returns");
 }
 
 // ---- Reels -----------------------------------------------------------------

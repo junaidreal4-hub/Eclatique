@@ -40,6 +40,16 @@ const items = [
     ),
   },
   {
+    href: "/admin/returns",
+    label: "Returns",
+    icon: (
+      <>
+        <path d="M3 7h13a5 5 0 0 1 0 10H8" />
+        <path d="M7 3L3 7l4 4" />
+      </>
+    ),
+  },
+  {
     href: "/admin/reels",
     label: "Reels",
     icon: (

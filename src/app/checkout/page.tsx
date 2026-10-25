@@ -3,10 +3,21 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { formatPrice } from "@/lib/format";
 import { shippingFor } from "@/lib/shipping";
 import { useCart } from "@/components/cart-context";
+
+interface SavedAddress {
+  id: number;
+  name: string;
+  phone: string;
+  line: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  isDefault: boolean;
+}
 
 type RazorpayInstance = { open: () => void; on: (event: string, cb: () => void) => void };
 type RazorpayCtor = new (options: Record<string, unknown>) => RazorpayInstance;
@@ -33,9 +44,45 @@ export default function CheckoutPage() {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [account, setAccount] = useState<{ loggedIn: boolean; addresses: SavedAddress[] }>({
+    loggedIn: false,
+    addresses: [],
+  });
+  const formRef = useRef<HTMLFormElement>(null);
 
   const shipping = shippingFor(subtotal);
   const total = subtotal + shipping;
+
+  function setField(name: string, value: string) {
+    const el = formRef.current?.elements.namedItem(name) as
+      | HTMLInputElement
+      | HTMLSelectElement
+      | null;
+    if (el) el.value = value;
+  }
+  function fillAddress(a: SavedAddress) {
+    const [first, ...rest] = (a.name || "").split(" ");
+    setField("first_name", first ?? "");
+    setField("last_name", rest.join(" "));
+    setField("phone", a.phone);
+    setField("address", a.line);
+    setField("city", a.city);
+    setField("state", a.state);
+    setField("postal_code", a.postalCode);
+  }
+
+  useEffect(() => {
+    fetch("/api/account/addresses")
+      .then((r) => r.json())
+      .then((d) => {
+        setAccount({ loggedIn: !!d.loggedIn, addresses: d.addresses ?? [] });
+        if (d.email) setField("email", d.email);
+        const def = (d.addresses ?? []).find((a: SavedAddress) => a.isDefault);
+        if (def) fillAddress(def);
+      })
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -61,6 +108,7 @@ export default function CheckoutPage() {
       city: fd.get("city"),
       state: fd.get("state"),
       postalCode: fd.get("postal_code"),
+      saveAddress: fd.get("save_address") === "on",
     };
     const items = lines.map((l) => ({
       productId: l.productId,
@@ -153,7 +201,7 @@ export default function CheckoutPage() {
   return (
     <div className="mx-auto max-w-[1100px] px-4 py-12 sm:px-6">
       <h1 className="mb-10 text-3xl font-bold tracking-tight">Checkout</h1>
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-12 lg:grid-cols-[1.3fr_1fr]">
+      <form ref={formRef} onSubmit={handleSubmit} className="grid grid-cols-1 gap-12 lg:grid-cols-[1.3fr_1fr]">
         <div className="space-y-10">
           <section>
             <h2 className="label mb-5 border-b border-line pb-3 text-xs">Contact</h2>
@@ -162,6 +210,28 @@ export default function CheckoutPage() {
 
           <section>
             <h2 className="label mb-5 border-b border-line pb-3 text-xs">Shipping Address</h2>
+
+            {account.addresses.length > 0 && (
+              <label className="mb-5 block">
+                <span className="label mb-2 block text-[10px] text-faint">Use a saved address</span>
+                <select
+                  defaultValue=""
+                  onChange={(e) => {
+                    const a = account.addresses.find((x) => String(x.id) === e.target.value);
+                    if (a) fillAddress(a);
+                  }}
+                  className="w-full border-b border-line bg-transparent py-2 text-sm outline-none focus:border-ink"
+                >
+                  <option value="">Enter a new address</option>
+                  {account.addresses.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.name} — {a.line}, {a.city} {a.postalCode}
+                      {a.isDefault ? " (default)" : ""}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
             <div className="grid grid-cols-2 gap-5">
               <Field label="First name" name="first_name" />
               <Field label="Last name" name="last_name" required={false} />
@@ -176,6 +246,12 @@ export default function CheckoutPage() {
               <div className="col-span-2">
                 <Field label="Postal code" name="postal_code" />
               </div>
+              {account.loggedIn && (
+                <label className="col-span-2 flex cursor-pointer items-center gap-2 text-sm text-muted">
+                  <input type="checkbox" name="save_address" />
+                  Save this address to my account
+                </label>
+              )}
             </div>
           </section>
 

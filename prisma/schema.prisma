@@ -52,6 +52,39 @@ model User {
   updatedAt     DateTime  @updatedAt
 }
 
+model Address {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  name       String
+  phone      String
+  line       String
+  city       String
+  state      String
+  postalCode String
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+}
+
+model ReturnRequest {
+  id              Int      @id @default(autoincrement())
+  orderId         Int // our Order.id
+  razorpayOrderId String // for display / lookup
+  userId          Int?
+  email           String
+  type            String // "RETURN" | "EXCHANGE"
+  reason          String   @default("")
+  items           String   @default("[]") // JSON: [{name,size,quantity,exchangeSize?}]
+  status          String   @default("requested") // requested | approved | rejected | completed
+  adminNote       String   @default("")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@index([orderId])
+}
+
 model PageView {
   id          Int      @id @default(autoincrement())
   path        String
@@ -73,6 +106,7 @@ model Order {
   status            String   @default("pending") // pending | paid | failed
   amount            Int // in paise
   currency          String   @default("INR")
+  userId            Int? // set when a logged-in customer places the order
   email             String
   customerName      String
   phone             String

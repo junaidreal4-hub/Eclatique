@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "helvetica",
+        "createdAt": "2026-10-25T10:43:18.526Z",
+        "reason": "HTML email templates (email.ts) must use web-safe fonts; email clients strip custom/web fonts, so Helvetica/Arial is domain-appropriate, not a UI font choice"
+      }
+    ]
+  }
+}

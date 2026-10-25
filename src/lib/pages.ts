@@ -44,10 +44,11 @@ export const CONTENT_PAGES: Record<string, ContentPage> = {
         ],
       },
       {
-        heading: "Returns",
+        heading: "Returns & Exchanges",
         body: [
-          "We accept returns within 3 days of delivery for unused items with original tags intact.",
-          "To initiate a return, email us at eclatiqueclothing@gmail.com with your order number.",
+          "We accept returns and exchanges within 7 days of delivery for unused items with original tags intact.",
+          "Exchanges are free — we arrange a pickup and send the replacement. For returns, you arrange and pay the return shipping, and your refund is issued once we receive the item.",
+          "To start a return or exchange, log in to your account, open the order, and choose Return or Exchange. (You can also email eclatiqueclothing@gmail.com with your order number.)",
         ],
       },
       {

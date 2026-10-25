@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
 import { CheckoutError, createPendingOrder, validateCart } from "@/lib/orders";
+import { getCurrentUser } from "@/lib/auth-user";
+import { createAddress } from "@/lib/addresses";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { items, email, firstName, lastName, phone, address, city, state, postalCode } = body ?? {};
+    const { items, email, firstName, lastName, phone, address, city, state, postalCode, saveAddress } = body ?? {};
 
     if (!email || !firstName || !phone || !address || !city || !state || !postalCode) {
       return NextResponse.json(
@@ -30,15 +32,37 @@ export async function POST(req: Request) {
       receipt: `rcpt_${Date.now()}`,
     });
 
-    await createPendingOrder(rzpOrder.id, amountPaise, lines, {
-      email: String(email),
-      customerName: `${firstName} ${lastName ?? ""}`.trim(),
-      phone: String(phone),
-      address: String(address),
-      city: String(city),
-      state: String(state),
-      postalCode: String(postalCode),
-    });
+    // Link the order to the logged-in customer (if any).
+    const user = await getCurrentUser();
+    const customerName = `${firstName} ${lastName ?? ""}`.trim();
+
+    await createPendingOrder(
+      rzpOrder.id,
+      amountPaise,
+      lines,
+      {
+        email: String(email),
+        customerName,
+        phone: String(phone),
+        address: String(address),
+        city: String(city),
+        state: String(state),
+        postalCode: String(postalCode),
+      },
+      user?.id ?? null,
+    );
+
+    // Optionally save the address to the account.
+    if (user && saveAddress) {
+      await createAddress(user.id, {
+        name: customerName,
+        phone: String(phone),
+        line: String(address),
+        city: String(city),
+        state: String(state),
+        postalCode: String(postalCode),
+      }).catch(() => {});
+    }
 
     return NextResponse.json({
       razorpayOrderId: rzpOrder.id,
