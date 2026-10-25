@@ -8,6 +8,7 @@ import { Footer } from "@/components/footer";
 import { CartDrawer } from "@/components/cart-drawer";
 import { StoreOnly } from "@/components/store-only";
 import { PageViewTracker } from "@/components/page-view-tracker";
+import { AuthPrompt } from "@/components/auth-prompt";
 
 const geist = Geist({
   variable: "--font-geist-sans",
@@ -45,6 +46,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <StoreOnly>
             <Footer />
             <CartDrawer />
+            <AuthPrompt />
           </StoreOnly>
         </CartProvider>
       </body>
