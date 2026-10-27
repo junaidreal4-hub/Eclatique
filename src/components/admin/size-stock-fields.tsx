@@ -1,15 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { ALL_SIZES } from "@/lib/taxonomy";
+import { sizesForSubCategory } from "@/lib/taxonomy";
 import { ONE_SIZE } from "@/lib/product-utils";
 import type { Product } from "@/lib/types";
+import { useTaxonomy } from "./taxonomy-context";
 
 const labelCls = "label mb-2 block text-[10px] text-faint";
 const cellCls =
   "w-full border border-line bg-transparent px-2 py-2 text-center text-sm outline-none focus:border-ink";
 
 export function SizeStockFields({ product }: { product?: Product }) {
+  const { subCategory } = useTaxonomy();
+  const sizes = sizesForSubCategory(subCategory);
+
   const initialOneSize =
     product?.sizes.length === 1 && product.sizes[0] === ONE_SIZE;
   const [oneSize, setOneSize] = useState(initialOneSize);
@@ -49,8 +53,8 @@ export function SizeStockFields({ product }: { product?: Product }) {
           <p className="mb-3 text-xs text-faint">
             Enter a quantity to offer a size (0 = shown but sold out). Leave blank to hide the size.
           </p>
-          <div className="grid grid-cols-4 gap-3 sm:grid-cols-7">
-            {ALL_SIZES.map((size) => {
+          <div className="grid grid-cols-4 gap-3 sm:grid-cols-8">
+            {sizes.map((size) => {
               const offered = product?.sizes.includes(size);
               const value = offered ? (product?.stock[size] ?? 0) : "";
               return (

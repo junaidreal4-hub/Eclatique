@@ -4,6 +4,7 @@ import type { Product } from "@/lib/types";
 import { CategorySelect } from "./category-select";
 import { ProductImageUploader } from "./product-image-uploader";
 import { SizeStockFields } from "./size-stock-fields";
+import { TaxonomyProvider } from "./taxonomy-context";
 
 const labelCls = "label mb-2 block text-[10px] text-faint";
 const inputCls =
@@ -14,6 +15,10 @@ export function ProductForm({ product }: { product?: Product }) {
     <form action={saveProductAction} className="max-w-2xl space-y-8">
       {product && <input type="hidden" name="id" value={product.id} />}
 
+      <TaxonomyProvider
+        defaultCategory={product?.category ?? "men"}
+        defaultSubCategory={product?.subCategory ?? "shirt"}
+      >
       <section className="space-y-5">
         <div>
           <label className={labelCls}>Product Name *</label>
@@ -48,10 +53,7 @@ export function ProductForm({ product }: { product?: Product }) {
             />
           </div>
         </div>
-        <CategorySelect
-          defaultCategory={product?.category ?? "men"}
-          defaultSubCategory={product?.subCategory ?? "shirt"}
-        />
+        <CategorySelect />
         <div>
           <label className={labelCls}>Variant Group (optional)</label>
           <input
@@ -69,6 +71,7 @@ export function ProductForm({ product }: { product?: Product }) {
       </section>
 
       <SizeStockFields product={product} />
+      </TaxonomyProvider>
 
       <section>
         <label className={labelCls}>Product Photos</label>

@@ -1,4 +1,4 @@
-import type { Category, SubCategory } from "./types";
+import type { Category, Size, SubCategory } from "./types";
 
 export const SUBCATEGORIES: {
   slug: SubCategory;
@@ -34,6 +34,17 @@ export const CATEGORIES: { slug: Category; label: string }[] = [
 ];
 
 export const ALL_SIZES = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"] as const;
+
+/** Waist sizes, used for bottomwear. */
+export const WAIST_SIZES = ["28", "30", "32", "34", "36", "38", "40", "42"] as const;
+
+/** Every size that can be entered via the admin form (for parsing submissions). */
+export const SIZES_FOR_INPUT = [...ALL_SIZES, ...WAIST_SIZES] as const;
+
+/** The size set offered for a given sub-category (waist sizes for bottomwear). */
+export function sizesForSubCategory(subCategory: string): readonly Size[] {
+  return subCategory === "bottomwear" ? WAIST_SIZES : ALL_SIZES;
+}
 
 export function subCategoryLabel(slug: string): string {
   return SUBCATEGORIES.find((s) => s.slug === slug)?.label ?? slug;

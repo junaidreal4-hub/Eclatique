@@ -20,7 +20,7 @@ import { createShipmentForOrder, syncShipmentStatus } from "@/lib/shipping-innof
 import { updateReturnStatus } from "@/lib/returns";
 import { sendReturnStatusEmail } from "@/lib/email";
 import { addReel, deleteReel, updateReelOrder } from "@/lib/reels";
-import { ALL_SIZES } from "@/lib/taxonomy";
+import { SIZES_FOR_INPUT } from "@/lib/taxonomy";
 import type { Category, Size, SubCategory } from "@/lib/types";
 
 // In-memory brute-force throttle for admin login, keyed by client IP.
@@ -81,7 +81,7 @@ function parseProductInput(formData: FormData): ProductInput {
     sizes.push("OS");
     stock["OS"] = qty;
   } else {
-    for (const size of ALL_SIZES) {
+    for (const size of SIZES_FOR_INPUT) {
       const raw = formData.get(`stock_${size}`);
       if (raw !== null && String(raw).trim() !== "") {
         sizes.push(size);

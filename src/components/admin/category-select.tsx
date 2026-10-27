@@ -1,33 +1,17 @@
 "use client";
 
-import { useState } from "react";
 import { CATEGORIES, subCategoriesFor } from "@/lib/taxonomy";
 import type { Category, SubCategory } from "@/lib/types";
+import { useTaxonomy } from "./taxonomy-context";
 
 const labelCls = "label mb-2 block text-[10px] text-faint";
 const inputCls =
   "w-full border border-line bg-transparent px-3 py-2 text-sm outline-none focus:border-ink";
 
-export function CategorySelect({
-  defaultCategory = "men",
-  defaultSubCategory = "shirt",
-}: {
-  defaultCategory?: Category;
-  defaultSubCategory?: SubCategory;
-}) {
-  const [category, setCategory] = useState<Category>(defaultCategory);
-  const [subCategory, setSubCategory] = useState<SubCategory>(defaultSubCategory);
+export function CategorySelect() {
+  const { category, subCategory, setCategory, setSubCategory } = useTaxonomy();
 
   const subs = subCategoriesFor(category);
-
-  function onCategoryChange(next: Category) {
-    setCategory(next);
-    // If the current sub-category isn't valid for the new category, reset it.
-    const nextSubs = subCategoriesFor(next);
-    if (!nextSubs.some((s) => s.slug === subCategory)) {
-      setSubCategory(nextSubs[0].slug);
-    }
-  }
 
   return (
     <div className="grid grid-cols-2 gap-5">
@@ -36,7 +20,7 @@ export function CategorySelect({
         <select
           name="category"
           value={category}
-          onChange={(e) => onCategoryChange(e.target.value as Category)}
+          onChange={(e) => setCategory(e.target.value as Category)}
           className={inputCls}
         >
           {CATEGORIES.map((c) => (
