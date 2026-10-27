@@ -58,13 +58,15 @@ export function ProductDetailActions({ product }: { product: Product }) {
       <div className="mb-6">
         <div className="mb-3 flex items-center justify-between">
           <span className="label text-[11px]">Size</span>
-          <button
-            type="button"
-            onClick={() => setGuideOpen(true)}
-            className="text-xs text-muted underline underline-offset-4 hover:text-ink"
-          >
-            Size Guide
-          </button>
+          {product.subCategory === "bottomwear" && (
+            <button
+              type="button"
+              onClick={() => setGuideOpen(true)}
+              className="text-xs text-muted underline underline-offset-4 hover:text-ink"
+            >
+              Size Guide
+            </button>
+          )}
         </div>
         <div className="grid grid-cols-6 gap-2">
           {product.sizes.map((s) => {
@@ -136,7 +138,7 @@ export function ProductDetailActions({ product }: { product: Product }) {
             >
               &times;
             </button>
-            <div className="relative aspect-[3/4] w-full">
+            <div className="relative aspect-square w-full">
               <Image
                 src={guideImage}
                 alt={`${product.category} size guide`}
