@@ -3,11 +3,12 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
-const SLIDES = [
-  "/hero/first_hero.webp",
-  "/hero/second_hero.webp",
-  "/hero/third_hero.webp",
-  "/hero/fourth_hero.webp",
+const DESKTOP_HERO = "/hero/desktop_hero.webp";
+const MOBILE_SLIDES = [
+  "/hero/mobile_1.webp",
+  "/hero/mobile_2.webp",
+  "/hero/mobile_3.webp",
+  "/hero/mobile_4.webp",
 ];
 
 export function HeroCarousel() {
@@ -15,7 +16,7 @@ export function HeroCarousel() {
 
   useEffect(() => {
     const timer = setInterval(
-      () => setIndex((i) => (i + 1) % SLIDES.length),
+      () => setIndex((i) => (i + 1) % MOBILE_SLIDES.length),
       5000,
     );
     return () => clearInterval(timer);
@@ -23,7 +24,19 @@ export function HeroCarousel() {
 
   return (
     <>
-      {SLIDES.map((src, i) => (
+      {/* Desktop: a single dedicated landscape hero */}
+      <Image
+        src={DESKTOP_HERO}
+        alt="Eclatique — Drop 03, the Bottoms Collection"
+        fill
+        priority
+        quality={90}
+        sizes="100vw"
+        className="hidden object-cover object-center md:block"
+      />
+
+      {/* Mobile: a 4-image carousel */}
+      {MOBILE_SLIDES.map((src, i) => (
         <Image
           key={src}
           src={src}
@@ -32,15 +45,15 @@ export function HeroCarousel() {
           priority={i === 0}
           quality={90}
           sizes="100vw"
-          className={`object-cover object-[50%_30%] transition-opacity duration-1000 ease-in-out ${
+          className={`object-cover object-center transition-opacity duration-1000 ease-in-out md:hidden ${
             i === index ? "opacity-100" : "opacity-0"
           }`}
         />
       ))}
 
-      {/* Slide indicators */}
-      <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-2">
-        {SLIDES.map((src, i) => (
+      {/* Slide indicators (mobile only) */}
+      <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-2 md:hidden">
+        {MOBILE_SLIDES.map((src, i) => (
           <button
             key={src}
             type="button"
