@@ -17,8 +17,8 @@ export function ProductDetailActions({ product }: { product: Product }) {
   const oneSizeSoldOut = oneSize && (product.stock[ONE_SIZE] ?? 0) <= 0;
   const guideImage =
     product.category === "women"
-      ? "/brand/size-guide-women.webp"
-      : "/brand/size-guide-men.webp";
+      ? "/brand/size-guide-women-v2.webp"
+      : "/brand/size-guide-men-v2.webp";
 
   function handleAdd() {
     if (!size) {
