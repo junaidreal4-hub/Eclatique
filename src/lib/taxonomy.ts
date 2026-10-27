@@ -36,7 +36,7 @@ export const CATEGORIES: { slug: Category; label: string }[] = [
 export const ALL_SIZES = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"] as const;
 
 /** Waist sizes, used for bottomwear. */
-export const WAIST_SIZES = ["28", "30", "32", "34", "36", "38", "40", "42"] as const;
+export const WAIST_SIZES = ["26", "28", "30", "32", "34", "36", "38", "40", "42"] as const;
 
 /** Every size that can be entered via the admin form (for parsing submissions). */
 export const SIZES_FOR_INPUT = [...ALL_SIZES, ...WAIST_SIZES] as const;

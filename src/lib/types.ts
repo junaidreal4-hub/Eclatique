@@ -2,7 +2,7 @@
 // Numeric values are waist sizes, used for bottomwear.
 export type Size =
   | "XS" | "S" | "M" | "L" | "XL" | "XXL" | "XXXL"
-  | "28" | "30" | "32" | "34" | "36" | "38" | "40" | "42"
+  | "26" | "28" | "30" | "32" | "34" | "36" | "38" | "40" | "42"
   | "OS";
 
 export type Category = "men" | "women";
